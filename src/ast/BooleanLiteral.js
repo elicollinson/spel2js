@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import { SpelNode } from './SpelNode';
 
 /**
  * Represents the literal values TRUE and FALSE.
@@ -24,17 +24,15 @@ import {SpelNode} from './SpelNode';
  * @since 0.2.0
  */
 
-function createNode(value, position) {
+function createNode(value: boolean, position: number) {
     var node = SpelNode.create('boolean', position);
 
-    node.getValue = function () {
+    node.getValue = function (): boolean {
         return value;
     };
 
-    node.setValue = function (newValue) {
-        /*jshint -W093 */
+    node.setValue = function (newValue: boolean): boolean {
         return value = newValue;
-        /*jshint +W093 */
     };
 
     return node;

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import { SpelNode } from './SpelNode';
+import { State } from '../types';
 
 /**
  * Implements the less-than-or-equal operator.
@@ -26,16 +27,16 @@ import {SpelNode} from './SpelNode';
  * @since 0.2.0
  */
 
-function createNode(position, left, right) {
+function createNode(position: number, left: any, right: any): any {
     var node = SpelNode.create('op-le', position, left, right);
 
-    node.getValue = function (state) {
+    node.getValue = function (state: State): boolean {
         return left.getValue(state) <= right.getValue(state);
     };
 
     return node;
 }
 
-export var OpLE =  {
+export var OpLE = {
     create: createNode
 };

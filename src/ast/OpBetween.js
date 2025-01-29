@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import { SpelNode } from './SpelNode';
+import { State } from '../types';
 
 /**
  * Represents the between operator. The left operand to between must be a single value and
@@ -25,7 +26,7 @@ import {SpelNode} from './SpelNode';
  * @author Andy Clement
  * @since 3.0
  */
-function createNode(position, left, right) {
+function createNode(position: number, left: any, right: any): any {
     var node = SpelNode.create('between', position, left, right);
 
     /**
@@ -36,7 +37,7 @@ function createNode(position, left, right) {
      * @return true if the left operand is in the range specified, false otherwise
      * @throws EvaluationException if there is a problem evaluating the expression
      */
-    node.getValue = function (state) {
+    node.getValue = function (state: State): boolean {
         throw {
             name: 'MethodNotImplementedException',
             message: 'OpBetween: Not implemented'

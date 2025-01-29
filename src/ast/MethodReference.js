@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
-import {Stack} from '../lib/Stack'
+import { SpelNode } from './SpelNode';
+import { Stack } from '../lib/Stack';
 
 /**
  * Expression language AST node that represents a method reference.
@@ -26,8 +26,7 @@ import {Stack} from '../lib/Stack'
  * @since 0.2.0
  */
 
-
-function createNode(nullSafeNavigation, methodName, position, args) {
+function createNode(nullSafeNavigation: boolean, methodName: string, position: number, args: any[]): any {
     var node = SpelNode.create('method', position);
 
     node.getRaw = function () {
@@ -37,7 +36,7 @@ function createNode(nullSafeNavigation, methodName, position, args) {
         };
     };
 
-    node.getValue = function (state) {
+    node.getValue = function (state: any) {
         var context = state.activeContext.peek(),
             compiledArgs = [],
             method;
@@ -50,7 +49,7 @@ function createNode(nullSafeNavigation, methodName, position, args) {
         }
 
         //handle safe navigation
-        function maybeHandleNullSafeNavigation(member) {
+        function maybeHandleNullSafeNavigation(member: any) {
             if (member === undefined || member === null) {
                 if (nullSafeNavigation) {
                     return null;

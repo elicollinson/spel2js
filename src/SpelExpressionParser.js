@@ -22,187 +22,170 @@
  *
  */
 
-
-import {TokenKind} from './TokenKind';
-import {Tokenizer} from './Tokenizer';
-import {BooleanLiteral} from './ast/BooleanLiteral';
-import {NumberLiteral} from './ast/NumberLiteral';
-import {StringLiteral} from './ast/StringLiteral';
-import {NullLiteral} from './ast/NullLiteral';
-import {FunctionReference} from './ast/FunctionReference';
-import {MethodReference} from './ast/MethodReference';
-import {PropertyReference} from './ast/PropertyReference';
-import {VariableReference} from './ast/VariableReference';
-import {CompoundExpression} from './ast/CompoundExpression';
-import {Indexer} from './ast/Indexer';
-import {Assign} from './ast/Assign';
-import {OpEQ} from './ast/OpEQ';
-import {OpNE} from './ast/OpNE';
-import {OpGE} from './ast/OpGE';
-import {OpGT} from './ast/OpGT';
-import {OpLE} from './ast/OpLE';
-import {OpLT} from './ast/OpLT';
-import {OpPlus} from './ast/OpPlus';
-import {OpMinus} from './ast/OpMinus';
-import {OpMultiply} from './ast/OpMultiply';
-import {OpDivide} from './ast/OpDivide';
-import {OpModulus} from './ast/OpModulus';
-import {OpPower} from './ast/OpPower';
-import {OpInc} from './ast/OpInc';
-import {OpDec} from './ast/OpDec';
-import {OpNot} from './ast/OpNot';
-import {OpAnd} from './ast/OpAnd';
-import {OpOr} from './ast/OpOr';
-import {OpMatches} from "./ast/OpMatches";
-import {Ternary} from './ast/Ternary';
-import {Elvis} from './ast/Elvis';
-import {InlineList} from './ast/InlineList';
-import {InlineMap} from './ast/InlineMap';
-import {Selection} from './ast/Selection';
-import {Projection} from './ast/Projection';
+import { TokenKind } from './TokenKind';
+import { Tokenizer } from './Tokenizer';
+import { BooleanLiteral } from './ast/BooleanLiteral';
+import { NumberLiteral } from './ast/NumberLiteral';
+import { StringLiteral } from './ast/StringLiteral';
+import { NullLiteral } from './ast/NullLiteral';
+import { FunctionReference } from './ast/FunctionReference';
+import { MethodReference } from './ast/MethodReference';
+import { PropertyReference } from './ast/PropertyReference';
+import { VariableReference } from './ast/VariableReference';
+import { CompoundExpression } from './ast/CompoundExpression';
+import { Indexer } from './ast/Indexer';
+import { Assign } from './ast/Assign';
+import { OpEQ } from './ast/OpEQ';
+import { OpNE } from './ast/OpNE';
+import { OpGE } from './ast/OpGE';
+import { OpGT } from './ast/OpGT';
+import { OpLE } from './ast/OpLE';
+import { OpLT } from './ast/OpLT';
+import { OpPlus } from './ast/OpPlus';
+import { OpMinus } from './ast/OpMinus';
+import { OpMultiply } from './ast/OpMultiply';
+import { OpDivide } from './ast/OpDivide';
+import { OpModulus } from './ast/OpModulus';
+import { OpPower } from './ast/OpPower';
+import { OpInc } from './ast/OpInc';
+import { OpDec } from './ast/OpDec';
+import { OpNot } from './ast/OpNot';
+import { OpAnd } from './ast/OpAnd';
+import { OpOr } from './ast/OpOr';
+import { OpMatches } from './ast/OpMatches';
+import { Ternary } from './ast/Ternary';
+import { Elvis } from './ast/Elvis';
+import { InlineList } from './ast/InlineList';
+import { InlineMap } from './ast/InlineMap';
+import { Selection } from './ast/Selection';
+import { Projection } from './ast/Projection';
 
 //not yet implemented
-import {OpInstanceof} from './ast/OpInstanceof';
-import {OpBetween} from './ast/OpBetween';
-import {TypeReference} from './ast/TypeReference';
-import {BeanReference} from './ast/BeanReference';
-import {Identifier} from './ast/Identifier';
-import {QualifiedIdentifier} from './ast/QualifiedIdentifier';
-import {ConstructorReference} from './ast/ConstructorReference';
+import { OpInstanceof } from './ast/OpInstanceof';
+import { OpBetween } from './ast/OpBetween';
+import { TypeReference } from './ast/TypeReference';
+import { BeanReference } from './ast/BeanReference';
+import { Identifier } from './ast/Identifier';
+import { QualifiedIdentifier } from './ast/QualifiedIdentifier';
+import { ConstructorReference } from './ast/ConstructorReference';
 
-export var SpelExpressionParser = function () {
+export const SpelExpressionParser = function () {
+    const VALID_QUALIFIED_ID_PATTERN = new RegExp('[\\p{L}\\p{N}_$]+');
 
-
-    var VALID_QUALIFIED_ID_PATTERN = new RegExp('[\\p{L}\\p{N}_$]+');
-
-
-    var configuration;
+    let configuration: any;
 
     // For rules that build nodes, they are stacked here for return
-    var constructedNodes = [];
+    let constructedNodes: any[] = [];
 
     // The expression being parsed
-    var expressionString;
+    let expressionString: string;
 
     // The token stream constructed from that expression string
-    var tokenStream;
+    let tokenStream: any[];
 
     // length of a populated token stream
-    var tokenStreamLength;
+    let tokenStreamLength: number;
 
     // Current location in the token stream when processing tokens
-    var tokenStreamPointer;
-
+    let tokenStreamPointer: number;
 
     /**
      * Create a parser with some configured behavior.
      * @param config custom configuration options
      */
-    function setConfiguration(config) {
+    function setConfiguration(config: any) {
         configuration = config;
     }
 
-
-    function parse(expression, context) {
+    function parse(expression: string, context?: any) {
         try {
             expressionString = expression;
             tokenStream = Tokenizer.tokenize(expression);
             tokenStreamLength = tokenStream.length;
             tokenStreamPointer = 0;
             constructedNodes = [];
-            var ast = eatExpression();
+            const ast = eatExpression();
             if (moreTokens()) {
                 raiseInternalException(peekToken().startPos, 'MORE_INPUT', nextToken().toString());
             }
-            //Assert.isTrue(this.constructedNodes.isEmpty());
             return ast;
-        }
-        catch (e) {
+        } catch (e) {
             throw e.message;
         }
     }
 
-    //	expression
-    //    : logicalOrExpression
-    //      ( (ASSIGN^ logicalOrExpression)
-    //	    | (DEFAULT^ logicalOrExpression)
-    //	    | (QMARK^ expression COLON! expression)
-    //      | (ELVIS^ expression))?;
-    function eatExpression() {
-        var expr = eatLogicalOrExpression();
+    function eatExpression(): any {
+        let expr = eatLogicalOrExpression();
         if (moreTokens()) {
-            var token = peekToken();
-            if (token.getKind() === TokenKind.ASSIGN) {  // a=b
+            const token = peekToken();
+            if (token.getKind() === TokenKind.ASSIGN) {
                 if (expr === null) {
                     expr = NullLiteral.create(toPosBounds(token.startPos - 1, token.endPos - 1));
                 }
                 nextToken();
-                var assignedValue = eatLogicalOrExpression();
+                const assignedValue = eatLogicalOrExpression();
                 return Assign.create(toPosToken(token), expr, assignedValue);
             }
 
-            if (token.getKind() === TokenKind.ELVIS) {  // a?:b (a if it isn't null, otherwise b)
+            if (token.getKind() === TokenKind.ELVIS) {
                 if (expr === null) {
                     expr = NullLiteral.create(toPosBounds(token.startPos - 1, token.endPos - 2));
                 }
-                nextToken();  // elvis has left the building
-                var valueIfNull = eatExpression();
+                nextToken();
+                const valueIfNull = eatExpression();
                 if (valueIfNull === null) {
                     valueIfNull = NullLiteral.create(toPosBounds(token.startPos + 1, token.endPos + 1));
                 }
                 return Elvis.create(toPosToken(token), expr, valueIfNull);
             }
 
-            if (token.getKind() === TokenKind.QMARK) {  // a?b:c
+            if (token.getKind() === TokenKind.QMARK) {
                 if (expr === null) {
                     expr = NullLiteral.create(toPosBounds(token.startPos - 1, token.endPos - 1));
                 }
                 nextToken();
-                var ifTrueExprValue = eatExpression();
+                const ifTrueExprValue = eatExpression();
                 eatToken(TokenKind.COLON);
-                var ifFalseExprValue = eatExpression();
+                const ifFalseExprValue = eatExpression();
                 return Ternary.create(toPosToken(token), expr, ifTrueExprValue, ifFalseExprValue);
             }
         }
         return expr;
     }
 
-    //logicalOrExpression : logicalAndExpression (OR^ logicalAndExpression)*;
-    function eatLogicalOrExpression() {
-        var expr = eatLogicalAndExpression();
+    function eatLogicalOrExpression(): any {
+        let expr = eatLogicalAndExpression();
         while (peekIdentifierToken('or') || peekTokenOne(TokenKind.SYMBOLIC_OR)) {
-            var token = nextToken();  //consume OR
-            var rhExpr = eatLogicalAndExpression();
+            const token = nextToken();
+            const rhExpr = eatLogicalAndExpression();
             checkOperands(token, expr, rhExpr);
             expr = OpOr.create(toPosToken(token), expr, rhExpr);
         }
         return expr;
     }
 
-    // logicalAndExpression : relationalExpression (AND^ relationalExpression)*;
-    function eatLogicalAndExpression() {
-        var expr = eatRelationalExpression();
+    function eatLogicalAndExpression(): any {
+        let expr = eatRelationalExpression();
         while (peekIdentifierToken('and') || peekTokenOne(TokenKind.SYMBOLIC_AND)) {
-            var token = nextToken();  // consume 'AND'
-            var rhExpr = eatRelationalExpression();
+            const token = nextToken();
+            const rhExpr = eatRelationalExpression();
             checkOperands(token, expr, rhExpr);
             expr = OpAnd.create(toPosToken(token), expr, rhExpr);
         }
         return expr;
     }
 
-    // relationalExpression : sumExpression (relationalOperator^ sumExpression)?;
-    function eatRelationalExpression() {
-        var expr = eatSumExpression();
-        var relationalOperatorToken = maybeEatRelationalOperator();
+    function eatRelationalExpression(): any {
+        let expr = eatSumExpression();
+        const relationalOperatorToken = maybeEatRelationalOperator();
         if (relationalOperatorToken !== null) {
-            var token = nextToken();  // consume relational operator token
-            var rhExpr = eatSumExpression();
+            const token = nextToken();
+            const rhExpr = eatSumExpression();
             checkOperands(token, expr, rhExpr);
-            var tk = relationalOperatorToken.kind;
+            const tk = relationalOperatorToken.kind;
 
             if (relationalOperatorToken.isNumericRelationalOperator()) {
-                var pos = toPosToken(token);
+                const pos = toPosToken(token);
                 if (tk === TokenKind.GT) {
                     return OpGT.create(pos, expr, rhExpr);
                 }
@@ -218,7 +201,6 @@ export var SpelExpressionParser = function () {
                 if (tk === TokenKind.EQ) {
                     return OpEQ.create(pos, expr, rhExpr);
                 }
-                //Assert.isTrue(tk === TokenKind.NE);
                 return OpNE.create(pos, expr, rhExpr);
             }
 
@@ -230,64 +212,56 @@ export var SpelExpressionParser = function () {
                 return OpMatches.create(toPosToken(token), expr, rhExpr);
             }
 
-            //Assert.isTrue(tk === TokenKind.BETWEEN);
             return OpBetween.create(toPosToken(token), expr, rhExpr);
         }
         return expr;
     }
 
-    //sumExpression: productExpression ( (PLUS^ | MINUS^) productExpression)*;
-    function eatSumExpression() {
-        var expr = eatProductExpression();
+    function eatSumExpression(): any {
+        let expr = eatProductExpression();
         while (peekTokenAny(TokenKind.PLUS, TokenKind.MINUS, TokenKind.INC)) {
-            var token = nextToken();//consume PLUS or MINUS or INC
-            var rhExpr = eatProductExpression();
+            const token = nextToken();
+            const rhExpr = eatProductExpression();
             checkRightOperand(token, rhExpr);
             if (token.getKind() === TokenKind.PLUS) {
                 expr = OpPlus.create(toPosToken(token), expr, rhExpr);
-            }
-            else if (token.getKind() === TokenKind.MINUS) {
+            } else if (token.getKind() === TokenKind.MINUS) {
                 expr = OpMinus.create(toPosToken(token), expr, rhExpr);
             }
         }
         return expr;
     }
 
-    // productExpression: powerExpr ((STAR^ | DIV^| MOD^) powerExpr)* ;
-    function eatProductExpression() {
-        var expr = eatPowerIncDecExpression();
+    function eatProductExpression(): any {
+        let expr = eatPowerIncDecExpression();
         while (peekTokenAny(TokenKind.STAR, TokenKind.DIV, TokenKind.MOD)) {
-            var token = nextToken();  // consume STAR/DIV/MOD
-            var rhExpr = eatPowerIncDecExpression();
+            const token = nextToken();
+            const rhExpr = eatPowerIncDecExpression();
             checkOperands(token, expr, rhExpr);
             if (token.getKind() === TokenKind.STAR) {
                 expr = OpMultiply.create(toPosToken(token), expr, rhExpr);
-            }
-            else if (token.getKind() === TokenKind.DIV) {
+            } else if (token.getKind() === TokenKind.DIV) {
                 expr = OpDivide.create(toPosToken(token), expr, rhExpr);
-            }
-            else {
-                //Assert.isTrue(token.getKind() === TokenKind.MOD);
+            } else {
                 expr = OpModulus.create(toPosToken(token), expr, rhExpr);
             }
         }
         return expr;
     }
 
-    // powerExpr  : unaryExpression (POWER^ unaryExpression)? (INC || DEC) ;
-    function eatPowerIncDecExpression() {
-        var expr = eatUnaryExpression(),
-            token;
+    function eatPowerIncDecExpression(): any {
+        let expr = eatUnaryExpression();
+        let token;
 
         if (peekTokenOne(TokenKind.POWER)) {
-            token = nextToken();  //consume POWER
-            var rhExpr = eatUnaryExpression();
+            token = nextToken();
+            const rhExpr = eatUnaryExpression();
             checkRightOperand(token, rhExpr);
             return OpPower.create(toPosToken(token), expr, rhExpr);
         }
 
         if (expr !== null && peekTokenAny(TokenKind.INC, TokenKind.DEC)) {
-            token = nextToken();  //consume INC/DEC
+            token = nextToken();
             if (token.getKind() === TokenKind.INC) {
                 return OpInc.create(toPosToken(token), true, expr);
             }
@@ -297,10 +271,9 @@ export var SpelExpressionParser = function () {
         return expr;
     }
 
-    // unaryExpression: (PLUS^ | MINUS^ | BANG^ | INC^ | DEC^) unaryExpression | primaryExpression ;
-    function eatUnaryExpression() {
-        var token,
-            expr;
+    function eatUnaryExpression(): any {
+        let token;
+        let expr;
 
         if (peekTokenAny(TokenKind.PLUS, TokenKind.MINUS, TokenKind.NOT)) {
             token = nextToken();
@@ -312,9 +285,7 @@ export var SpelExpressionParser = function () {
             if (token.getKind() === TokenKind.PLUS) {
                 return OpPlus.create(toPosToken(token), expr);
             }
-            //Assert.isTrue(token.getKind() === TokenKind.MINUS);
             return OpMinus.create(toPosToken(token), expr);
-
         }
         if (peekTokenAny(TokenKind.INC, TokenKind.DEC)) {
             token = nextToken();
@@ -328,10 +299,9 @@ export var SpelExpressionParser = function () {
         return eatPrimaryExpression();
     }
 
-    // primaryExpression : startNode (node)? -> ^(EXPRESSION startNode (node)?);
-    function eatPrimaryExpression() {
-        var nodes = [];
-        var start = eatStartNode();  // always a start node
+    function eatPrimaryExpression(): any {
+        const nodes = [];
+        const start = eatStartNode();
         nodes.push(start);
         while (maybeEatNode()) {
             nodes.push(pop());
@@ -342,27 +312,23 @@ export var SpelExpressionParser = function () {
         return CompoundExpression.create(toPosBounds(start.getStartPosition(), nodes[nodes.length - 1].getEndPosition()), nodes);
     }
 
-    // node : ((DOT dottedNode) | (SAFE_NAVI dottedNode) | nonDottedNode)+;
-    function maybeEatNode() {
-        var expr = null;
+    function maybeEatNode(): boolean {
+        let expr = null;
         if (peekTokenAny(TokenKind.DOT, TokenKind.SAFE_NAVI)) {
             expr = eatDottedNode();
-        }
-        else {
+        } else {
             expr = maybeEatNonDottedNode();
         }
 
         if (expr === null) {
             return false;
-        }
-        else {
+        } else {
             push(expr);
             return true;
         }
     }
 
-    // nonDottedNode: indexer;
-    function maybeEatNonDottedNode() {
+    function maybeEatNonDottedNode(): any {
         if (peekTokenOne(TokenKind.LSQUARE)) {
             if (maybeEatIndexer()) {
                 return pop();
@@ -371,44 +337,27 @@ export var SpelExpressionParser = function () {
         return null;
     }
 
-    //dottedNode
-    // : ((methodOrProperty
-    //	  | functionOrVar
-    //    | projection
-    //    | selection
-    //    | firstSelection
-    //    | lastSelection
-    //    ))
-    //	;
-    function eatDottedNode() {
-        var token = nextToken();// it was a '.' or a '?.'
-        var nullSafeNavigation = token.getKind() === TokenKind.SAFE_NAVI;
+    function eatDottedNode(): any {
+        const token = nextToken();
+        const nullSafeNavigation = token.getKind() === TokenKind.SAFE_NAVI;
         if (maybeEatMethodOrProperty(nullSafeNavigation) || maybeEatFunctionOrVar() || maybeEatProjection(nullSafeNavigation) || maybeEatSelection(nullSafeNavigation)) {
             return pop();
         }
         if (peekToken() === null) {
-            // unexpectedly ran out of data
             raiseInternalException(token.startPos, 'OOD');
-        }
-        else {
+        } else {
             raiseInternalException(token.startPos, 'UNEXPECTED_DATA_AFTER_DOT', toString(peekToken()));
         }
         return null;
     }
 
-    // functionOrVar
-    // : (POUND ID LPAREN) => function
-    // | var
-    //
-    // function : POUND id=ID methodArgs -> ^(FUNCTIONREF[$id] methodArgs);
-    // var : POUND id=ID -> ^(VARIABLEREF[$id]);
-    function maybeEatFunctionOrVar() {
+    function maybeEatFunctionOrVar(): boolean {
         if (!peekTokenOne(TokenKind.HASH)) {
             return false;
         }
-        var token = nextToken();
-        var functionOrVariableName = eatToken(TokenKind.IDENTIFIER);
-        var args = maybeEatMethodArgs();
+        const token = nextToken();
+        const functionOrVariableName = eatToken(TokenKind.IDENTIFIER);
+        const args = maybeEatMethodArgs();
         if (args === null) {
             push(VariableReference.create(functionOrVariableName.data, toPosBounds(token.startPos, functionOrVariableName.endPos)));
             return true;
@@ -418,18 +367,17 @@ export var SpelExpressionParser = function () {
         return true;
     }
 
-    // methodArgs : LPAREN! (argument (COMMA! argument)* (COMMA!)?)? RPAREN!;
-    function maybeEatMethodArgs() {
+    function maybeEatMethodArgs(): any[] | null {
         if (!peekTokenOne(TokenKind.LPAREN)) {
             return null;
         }
-        var args = [];
+        const args: any[] = [];
         consumeArguments(args);
         eatToken(TokenKind.RPAREN);
         return args;
     }
 
-    function eatConstructorArgs(accumulatedArguments) {
+    function eatConstructorArgs(accumulatedArguments: any[]): void {
         if (!peekTokenOne(TokenKind.LPAREN)) {
             raiseInternalException(toPosToken(peekToken()), 'MISSING_CONSTRUCTOR_ARGS');
         }
@@ -437,15 +385,12 @@ export var SpelExpressionParser = function () {
         eatToken(TokenKind.RPAREN);
     }
 
-    /**
-     * Used for consuming arguments for either a method or a constructor call
-     */
-    function consumeArguments(accumulatedArguments) {
-        var pos = peekToken().startPos;
-        var next;
+    function consumeArguments(accumulatedArguments: any[]): void {
+        const pos = peekToken().startPos;
+        let next;
         do {
-            nextToken();  // consume ( (first time through) or comma (subsequent times)
-            var token = peekToken();
+            nextToken();
+            const token = peekToken();
             if (token === null) {
                 raiseInternalException(pos, 'RUN_OUT_OF_ARGUMENTS');
             }
@@ -453,103 +398,75 @@ export var SpelExpressionParser = function () {
                 accumulatedArguments.push(eatExpression());
             }
             next = peekToken();
-        }
-        while (next !== null && next.kind === TokenKind.COMMA);
+        } while (next !== null && next.kind === TokenKind.COMMA);
 
         if (next === null) {
             raiseInternalException(pos, 'RUN_OUT_OF_ARGUMENTS');
         }
     }
 
-    function positionOf(token) {
+    function positionOf(token: any): number {
         if (token === null) {
-            // if null assume the problem is because the right token was
-            // not found at the end of the expression
             return expressionString.length;
         }
         return token.startPos;
     }
 
-    //startNode
-    // : parenExpr | literal
-    //	    | type
-    //	    | methodOrProperty
-    //	    | functionOrVar
-    //	    | projection
-    //	    | selection
-    //	    | firstSelection
-    //	    | lastSelection
-    //	    | indexer
-    //	    | constructor
-    function eatStartNode() {
+    function eatStartNode(): any {
         if (maybeEatLiteral()) {
             return pop();
-        }
-        else if (maybeEatParenExpression()) {
+        } else if (maybeEatParenExpression()) {
             return pop();
-        }
-        else if (maybeEatTypeReference() || maybeEatNullReference() || maybeEatConstructorReference() || maybeEatMethodOrProperty(false) || maybeEatFunctionOrVar()) {
+        } else if (maybeEatTypeReference() || maybeEatNullReference() || maybeEatConstructorReference() || maybeEatMethodOrProperty(false) || maybeEatFunctionOrVar()) {
             return pop();
-        }
-        else if (maybeEatBeanReference()) {
+        } else if (maybeEatBeanReference()) {
             return pop();
-        }
-        else if (maybeEatProjection(false) || maybeEatSelection(false) || maybeEatIndexer()) {
+        } else if (maybeEatProjection(false) || maybeEatSelection(false) || maybeEatIndexer()) {
             return pop();
-        }
-        else if (maybeEatInlineListOrMap()) {
+        } else if (maybeEatInlineListOrMap()) {
             return pop();
-        }
-        else {
+        } else {
             return null;
         }
     }
 
-    // parse: @beanname @'bean.name'
-    // quoted if dotted
-    function maybeEatBeanReference() {
+    function maybeEatBeanReference(): boolean {
         if (peekTokenOne(TokenKind.BEAN_REF)) {
-            var beanRefToken = nextToken();
-            var beanNameToken = null;
-            var beanName = null;
+            const beanRefToken = nextToken();
+            let beanNameToken = null;
+            let beanName = null;
             if (peekTokenOne(TokenKind.IDENTIFIER)) {
                 beanNameToken = eatToken(TokenKind.IDENTIFIER);
                 beanName = beanNameToken.data;
-            }
-            else if (peekTokenOne(TokenKind.LITERAL_STRING)) {
+            } else if (peekTokenOne(TokenKind.LITERAL_STRING)) {
                 beanNameToken = eatToken(TokenKind.LITERAL_STRING);
                 beanName = beanNameToken.stringValue();
                 beanName = beanName.substring(1, beanName.length() - 1);
-            }
-            else {
+            } else {
                 raiseInternalException(beanRefToken.startPos, 'INVALID_BEAN_REFERENCE');
             }
 
-            var beanReference = BeanReference.create(toPosToken(beanNameToken), beanName);
+            const beanReference = BeanReference.create(toPosToken(beanNameToken), beanName);
             push(beanReference);
             return true;
         }
         return false;
     }
 
-    function maybeEatTypeReference() {
+    function maybeEatTypeReference(): boolean {
         if (peekTokenOne(TokenKind.IDENTIFIER)) {
-            var typeName = peekToken();
+            const typeName = peekToken();
             if (typeName.stringValue() !== 'T') {
                 return false;
             }
-            // It looks like a type reference but is T being used as a map key?
-            var token = nextToken();
+            const token = nextToken();
             if (peekTokenOne(TokenKind.RSQUARE)) {
-                // looks like 'T]' (T is map key)
                 push(PropertyReference.create(token.stringValue(), toPosToken(token)));
                 return true;
             }
             eatToken(TokenKind.LPAREN);
-            var node = eatPossiblyQualifiedId();
-            // dotted qualified id
-            // Are there array dimensions?
-            var dims = 0;
+            const node = eatPossiblyQualifiedId();
+            let dims = 0;
             while (peekTokenConsumeIfMatched(TokenKind.LSQUARE, true)) {
                 eatToken(TokenKind.RSQUARE);
                 dims++;
@@ -561,9 +478,9 @@ export var SpelExpressionParser = function () {
         return false;
     }
 
-    function maybeEatNullReference() {
+    function maybeEatNullReference(): boolean {
         if (peekTokenOne(TokenKind.IDENTIFIER)) {
-            var nullToken = peekToken();
+            const nullToken = peekToken();
             if (nullToken.stringValue().toLowerCase() !== 'null') {
                 return false;
             }
@@ -574,62 +491,46 @@ export var SpelExpressionParser = function () {
         return false;
     }
 
-    //projection: PROJECT^ expression RCURLY!;
-    function maybeEatProjection(nullSafeNavigation) {
-        var token = peekToken();
+    function maybeEatProjection(nullSafeNavigation: boolean): boolean {
+        const token = peekToken();
         if (!peekTokenConsumeIfMatched(TokenKind.PROJECT, true)) {
             return false;
         }
-        var expr = eatExpression();
+        const expr = eatExpression();
         eatToken(TokenKind.RSQUARE);
         push(Projection.create(nullSafeNavigation, toPosToken(token), expr));
         return true;
     }
 
-    // list = LCURLY (element (COMMA element)*) RCURLY
-    // map  = LCURLY (key ':' value (COMMA key ':' value)*) RCURLY
-    function maybeEatInlineListOrMap() {
-        var token = peekToken(),
-            listElements = [];
+    function maybeEatInlineListOrMap(): boolean {
+        const token = peekToken();
+        const listElements: any[] = [];
 
         if (!peekTokenConsumeIfMatched(TokenKind.LCURLY, true)) {
             return false;
         }
-        var expr = null;
-        var closingCurly = peekToken();
+        let expr = null;
+        let closingCurly = peekToken();
         if (peekTokenConsumeIfMatched(TokenKind.RCURLY, true)) {
-            // empty list '{}'
             expr = InlineList.create(toPosBounds(token.startPos, closingCurly.endPos));
-        }
-        else if (peekTokenConsumeIfMatched(TokenKind.COLON, true)) {
+        } else if (peekTokenConsumeIfMatched(TokenKind.COLON, true)) {
             closingCurly = eatToken(TokenKind.RCURLY);
-            // empty map '{:}'
             expr = InlineMap.create(toPosBounds(token.startPos, closingCurly.endPos));
-        }
-        else {
-            var firstExpression = eatExpression();
-            // Next is either:
-            // '}' - end of list
-            // ',' - more expressions in this list
-            // ':' - this is a map!
-
-            if (peekTokenOne(TokenKind.RCURLY)) { // list with one item in it
+        } else {
+            const firstExpression = eatExpression();
+            if (peekTokenOne(TokenKind.RCURLY)) {
                 listElements.push(firstExpression);
                 closingCurly = eatToken(TokenKind.RCURLY);
                 expr = InlineList.create(toPosBounds(token.startPos, closingCurly.endPos), listElements);
-            }
-            else if (peekTokenConsumeIfMatched(TokenKind.COMMA, true)) { // multi item list
+            } else if (peekTokenConsumeIfMatched(TokenKind.COMMA, true)) {
                 listElements.push(firstExpression);
                 do {
                     listElements.push(eatExpression());
-                }
-                while (peekTokenConsumeIfMatched(TokenKind.COMMA, true));
+                } while (peekTokenConsumeIfMatched(TokenKind.COMMA, true));
                 closingCurly = eatToken(TokenKind.RCURLY);
                 expr = InlineList.create(toPosToken(token.startPos, closingCurly.endPos), listElements);
-
-            }
-            else if (peekTokenConsumeIfMatched(TokenKind.COLON, true)) {  // map!
-                var mapElements = [];
+            } else if (peekTokenConsumeIfMatched(TokenKind.COLON, true)) {
+                const mapElements: any[] = [];
                 mapElements.push(firstExpression);
                 mapElements.push(eatExpression());
                 while (peekTokenConsumeIfMatched(TokenKind.COMMA, true)) {
@@ -639,8 +540,7 @@ export var SpelExpressionParser = function () {
                 }
                 closingCurly = eatToken(TokenKind.RCURLY);
                 expr = InlineMap.create(toPosBounds(token.startPos, closingCurly.endPos), mapElements);
-            }
-            else {
+            } else {
                 raiseInternalException(token.startPos, 'OOD');
             }
         }
@@ -648,47 +548,41 @@ export var SpelExpressionParser = function () {
         return true;
     }
 
-    function maybeEatIndexer() {
-        var token = peekToken();
+    function maybeEatIndexer(): boolean {
+        const token = peekToken();
         if (!peekTokenConsumeIfMatched(TokenKind.LSQUARE, true)) {
             return false;
         }
-        var expr = eatExpression();
+        const expr = eatExpression();
         eatToken(TokenKind.RSQUARE);
         push(Indexer.create(toPosToken(token), expr));
         return true;
     }
 
-    function maybeEatSelection(nullSafeNavigation) {
-        var token = peekToken();
+    function maybeEatSelection(nullSafeNavigation: boolean): boolean {
+        const token = peekToken();
         if (!peekSelectToken()) {
             return false;
         }
         nextToken();
-        var expr = eatExpression();
+        const expr = eatExpression();
         if (expr === null) {
             raiseInternalException(toPosToken(token), 'MISSING_SELECTION_EXPRESSION');
         }
         eatToken(TokenKind.RSQUARE);
         if (token.getKind() === TokenKind.SELECT_FIRST) {
             push(Selection.create(nullSafeNavigation, Selection.FIRST, toPosToken(token), expr));
-        }
-        else if (token.getKind() === TokenKind.SELECT_LAST) {
+        } else if (token.getKind() === TokenKind.SELECT_LAST) {
             push(Selection.create(nullSafeNavigation, Selection.LAST, toPosToken(token), expr));
-        }
-        else {
+        } else {
             push(Selection.create(nullSafeNavigation, Selection.ALL, toPosToken(token), expr));
         }
         return true;
     }
 
-    /**
-     * Eat an identifier, possibly qualified (meaning that it is dotted).
-     * TODO AndyC Could create complete identifiers (a.b.c) here rather than a sequence of them? (a, b, c)
-     */
-    function eatPossiblyQualifiedId() {
-        var qualifiedIdPieces = [];
-        var node = peekToken();
+    function eatPossiblyQualifiedId(): any {
+        const qualifiedIdPieces: any[] = [];
+        let node = peekToken();
         while (isValidQualifiedId(node)) {
             nextToken();
             if (node.kind !== TokenKind.DOT) {
@@ -698,66 +592,55 @@ export var SpelExpressionParser = function () {
         }
         if (!qualifiedIdPieces.length) {
             if (node === null) {
-                raiseInternalException(expressionString.length(), 'OOD');
+                raiseInternalException(expressionString.length, 'OOD');
             }
             raiseInternalException(node.startPos, 'NOT_EXPECTED_TOKEN', 'qualified ID', node.getKind().toString().toLowerCase());
         }
-        var pos = toPosBounds(qualifiedIdPieces[0].getStartPosition(), qualifiedIdPieces[qualifiedIdPieces.length - 1].getEndPosition());
+        const pos = toPosBounds(qualifiedIdPieces[0].getStartPosition(), qualifiedIdPieces[qualifiedIdPieces.length - 1].getEndPosition());
         return QualifiedIdentifier.create(pos, qualifiedIdPieces);
     }
 
-    function isValidQualifiedId(node) {
+    function isValidQualifiedId(node: any): boolean {
         if (node === null || node.kind === TokenKind.LITERAL_STRING) {
             return false;
         }
         if (node.kind === TokenKind.DOT || node.kind === TokenKind.IDENTIFIER) {
             return true;
         }
-        var value = node.stringValue();
-        return (value && value.length && VALID_QUALIFIED_ID_PATTERN.test(value));
+        const value = node.stringValue();
+        return value && value.length && VALID_QUALIFIED_ID_PATTERN.test(value);
     }
 
-    // This is complicated due to the support for dollars in identifiers.  Dollars are normally separate tokens but
-    // there we want to combine a series of identifiers and dollars into a single identifier
-    function maybeEatMethodOrProperty(nullSafeNavigation) {
+    function maybeEatMethodOrProperty(nullSafeNavigation: boolean): boolean {
         if (peekTokenOne(TokenKind.IDENTIFIER)) {
-            var methodOrPropertyName = nextToken();
-            var args = maybeEatMethodArgs();
+            const methodOrPropertyName = nextToken();
+            const args = maybeEatMethodArgs();
             if (args === null) {
-                // property
                 push(PropertyReference.create(nullSafeNavigation, methodOrPropertyName.stringValue(), toPosToken(methodOrPropertyName)));
                 return true;
             }
-            // methodreference
             push(MethodReference.create(nullSafeNavigation, methodOrPropertyName.stringValue(), toPosToken(methodOrPropertyName), args));
-            // TODO what is the end position for a method reference? the name or the last arg?
             return true;
         }
         return false;
     }
 
-    //constructor
-    //:	('new' qualifiedId LPAREN) => 'new' qualifiedId ctorArgs -> ^(CONSTRUCTOR qualifiedId ctorArgs)
-    function maybeEatConstructorReference() {
+    function maybeEatConstructorReference(): boolean {
         if (peekIdentifierToken('new')) {
-            var newToken = nextToken();
-            // It looks like a constructor reference but is NEW being used as a map key?
+            const newToken = nextToken();
             if (peekTokenOne(TokenKind.RSQUARE)) {
-                // looks like 'NEW]' (so NEW used as map key)
                 push(PropertyReference.create(newToken.stringValue(), toPosToken(newToken)));
                 return true;
             }
-            var possiblyQualifiedConstructorName = eatPossiblyQualifiedId();
-            var nodes = [];
+            const possiblyQualifiedConstructorName = eatPossiblyQualifiedId();
+            const nodes: any[] = [];
             nodes.push(possiblyQualifiedConstructorName);
             if (peekTokenOne(TokenKind.LSQUARE)) {
-                // array initializer
-                var dimensions = [];
+                const dimensions: any[] = [];
                 while (peekTokenConsumeIfMatched(TokenKind.LSQUARE, true)) {
                     if (!peekTokenOne(TokenKind.RSQUARE)) {
                         dimensions.push(eatExpression());
-                    }
-                    else {
+                    } else {
                         dimensions.push(null);
                     }
                     eatToken(TokenKind.RSQUARE);
@@ -766,11 +649,8 @@ export var SpelExpressionParser = function () {
                     nodes.push(pop());
                 }
                 push(ConstructorReference.create(toPosToken(newToken), dimensions, nodes));
-            }
-            else {
-                // regular constructor invocation
+            } else {
                 eatConstructorArgs(nodes);
-                // TODO correct end position?
                 push(ConstructorReference.create(toPosToken(newToken), nodes));
             }
             return true;
@@ -778,74 +658,52 @@ export var SpelExpressionParser = function () {
         return false;
     }
 
-    function push(newNode) {
+    function push(newNode: any): void {
         constructedNodes.push(newNode);
     }
 
-    function pop() {
+    function pop(): any {
         return constructedNodes.pop();
     }
 
-    //	literal
-    //  : INTEGER_LITERAL
-    //	| boolLiteral
-    //	| STRING_LITERAL
-    //  | HEXADECIMAL_INTEGER_LITERAL
-    //  | REAL_LITERAL
-    //	| DQ_STRING_LITERAL
-    //	| NULL_LITERAL
-    function maybeEatLiteral() {
-        var token = peekToken();
+    function maybeEatLiteral(): boolean {
+        const token = peekToken();
         if (token === null) {
             return false;
         }
-        if (token.getKind() === TokenKind.LITERAL_INT ||
-            token.getKind() === TokenKind.LITERAL_LONG) {
+        if (token.getKind() === TokenKind.LITERAL_INT || token.getKind() === TokenKind.LITERAL_LONG) {
             push(NumberLiteral.create(parseInt(token.stringValue(), 10), toPosToken(token)));
-        }
-        else if (   token.getKind() === TokenKind.LITERAL_REAL ||
-                    token.getKind() === TokenKind.LITERAL_REAL_FLOAT) {
+        } else if (token.getKind() === TokenKind.LITERAL_REAL || token.getKind() === TokenKind.LITERAL_REAL_FLOAT) {
             push(NumberLiteral.create(parseFloat(token.stringValue()), toPosToken(token)));
-        }
-        else if (   token.getKind() === TokenKind.LITERAL_HEXINT ||
-                    token.getKind() === TokenKind.LITERAL_HEXLONG) {
+        } else if (token.getKind() === TokenKind.LITERAL_HEXINT || token.getKind() === TokenKind.LITERAL_HEXLONG) {
             push(NumberLiteral.create(parseInt(token.stringValue(), 16), toPosToken(token)));
-        }
-        else if (peekIdentifierToken('true')) {
+        } else if (peekIdentifierToken('true')) {
             push(BooleanLiteral.create(true, toPosToken(token)));
-        }
-        else if (peekIdentifierToken('false')) {
+        } else if (peekIdentifierToken('false')) {
             push(BooleanLiteral.create(false, toPosToken(token)));
-        }
-        else if (token.getKind() === TokenKind.LITERAL_STRING) {
+        } else if (token.getKind() === TokenKind.LITERAL_STRING) {
             push(StringLiteral.create(token.stringValue(), toPosToken(token)));
-        }
-        else {
+        } else {
             return false;
         }
         nextToken();
         return true;
     }
 
-    //parenExpr : LPAREN! expression RPAREN!;
-    function maybeEatParenExpression() {
+    function maybeEatParenExpression(): boolean {
         if (peekTokenOne(TokenKind.LPAREN)) {
             nextToken();
-            var expr = eatExpression();
+            const expr = eatExpression();
             eatToken(TokenKind.RPAREN);
             push(expr);
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 
-    // relationalOperator
-    // : EQUAL | NOT_EQUAL | LESS_THAN | LESS_THAN_OR_EQUAL | GREATER_THAN
-    // | GREATER_THAN_OR_EQUAL | INSTANCEOF | BETWEEN | MATCHES
-    function maybeEatRelationalOperator() {
-        var token = peekToken();
+    function maybeEatRelationalOperator(): any {
+        const token = peekToken();
         if (token === null) {
             return null;
         }
@@ -853,7 +711,7 @@ export var SpelExpressionParser = function () {
             return token;
         }
         if (token.isIdentifier()) {
-            var idString = token.stringValue();
+            const idString = token.stringValue();
             if (idString.toLowerCase() === 'instanceof') {
                 return token.asInstanceOfToken();
             }
@@ -867,27 +725,26 @@ export var SpelExpressionParser = function () {
         return null;
     }
 
-    function eatToken(expectedKind) {
-        var token = nextToken();
+    function eatToken(expectedKind: any): any {
+        const token = nextToken();
         if (token === null) {
             raiseInternalException(expressionString.length, 'OOD');
         }
         if (token.getKind() !== expectedKind) {
-            raiseInternalException(token.startPos, 'NOT_EXPECTED_TOKEN',
-                expectedKind.toString().toLowerCase(), token.getKind().toString().toLowerCase());
+            raiseInternalException(token.startPos, 'NOT_EXPECTED_TOKEN', expectedKind.toString().toLowerCase(), token.getKind().toString().toLowerCase());
         }
         return token;
     }
 
-    function peekTokenOne(desiredTokenKind) {
+    function peekTokenOne(desiredTokenKind: any): boolean {
         return peekTokenConsumeIfMatched(desiredTokenKind, false);
     }
 
-    function peekTokenConsumeIfMatched(desiredTokenKind, consumeIfMatched) {
+    function peekTokenConsumeIfMatched(desiredTokenKind: any, consumeIfMatched: boolean): boolean {
         if (!moreTokens()) {
             return false;
         }
-        var token = peekToken();
+        const token = peekToken();
         if (token.getKind() === desiredTokenKind) {
             if (consumeIfMatched) {
                 tokenStreamPointer++;
@@ -896,23 +753,19 @@ export var SpelExpressionParser = function () {
         }
 
         if (desiredTokenKind === TokenKind.IDENTIFIER) {
-            // might be one of the textual forms of the operators (e.g. NE for !== ) - in which case we can treat it as an identifier
-            // The list is represented here: Tokenizer.alternativeOperatorNames and those ones are in order in the TokenKind enum
             if (token.getKind().ordinal() >= TokenKind.DIV.ordinal() && token.getKind().ordinal() <= TokenKind.NOT.ordinal() && token.data !== null) {
-                // if token.data were null, we'd know it wasn'token the textual form, it was the symbol form
                 return true;
             }
         }
         return false;
     }
 
-    function peekTokenAny() {
+    function peekTokenAny(...args: any[]): boolean {
         if (!moreTokens()) {
             return false;
         }
-        var token = peekToken();
-        var args = Array.prototype.slice.call(arguments);
-        for (var i = 0, l = args.length; i < l; i += 1) {
+        const token = peekToken();
+        for (let i = 0, l = args.length; i < l; i += 1) {
             if (token.getKind() === args[i]) {
                 return true;
             }
@@ -920,41 +773,41 @@ export var SpelExpressionParser = function () {
         return false;
     }
 
-    function peekIdentifierToken(identifierString) {
+    function peekIdentifierToken(identifierString: string): boolean {
         if (!moreTokens()) {
             return false;
         }
-        var token = peekToken();
+        const token = peekToken();
         return token.getKind() === TokenKind.IDENTIFIER && token.stringValue().toLowerCase() === identifierString.toLowerCase();
     }
 
-    function peekSelectToken() {
+    function peekSelectToken(): boolean {
         if (!moreTokens()) {
             return false;
         }
-        var token = peekToken();
+        const token = peekToken();
         return token.getKind() === TokenKind.SELECT || token.getKind() === TokenKind.SELECT_FIRST || token.getKind() === TokenKind.SELECT_LAST;
     }
 
-    function moreTokens() {
+    function moreTokens(): boolean {
         return tokenStreamPointer < tokenStream.length;
     }
 
-    function nextToken() {
+    function nextToken(): any {
         if (tokenStreamPointer >= tokenStreamLength) {
             return null;
         }
         return tokenStream[tokenStreamPointer++];
     }
 
-    function peekToken() {
+    function peekToken(): any {
         if (tokenStreamPointer >= tokenStreamLength) {
             return null;
         }
         return tokenStream[tokenStreamPointer];
     }
 
-    function raiseInternalException(pos, message, expected, actual) {
+    function raiseInternalException(pos: number, message: string, expected?: string, actual?: string): void {
         if (expected) {
             message += '\nExpected: ' + expected;
         }
@@ -967,38 +820,35 @@ export var SpelExpressionParser = function () {
         };
     }
 
-    function toString(token) {
+    function toString(token: any): string {
         if (token.getKind().hasPayload()) {
             return token.stringValue();
         }
         return token.getKind().toString().toLowerCase();
     }
 
-    function checkOperands(token, left, right) {
+    function checkOperands(token: any, left: any, right: any): void {
         checkLeftOperand(token, left);
         checkRightOperand(token, right);
     }
 
-    function checkLeftOperand(token, operandExpression) {
+    function checkLeftOperand(token: any, operandExpression: any): void {
         if (operandExpression === null) {
             raiseInternalException(token.startPos, 'LEFT_OPERAND_PROBLEM');
         }
     }
 
-    function checkRightOperand(token, operandExpression) {
+    function checkRightOperand(token: any, operandExpression: any): void {
         if (operandExpression === null) {
             raiseInternalException(token.startPos, 'RIGHT_OPERAND_PROBLEM');
         }
     }
 
-    /**
-     * Compress the start and end of a token into a single int.
-     */
-    function toPosToken(token) {
+    function toPosToken(token: any): number {
         return (token.startPos << 16) + token.endPos;
     }
 
-    function toPosBounds(start, end) {
+    function toPosBounds(start: number, end: number): number {
         return (start << 16) + end;
     }
 

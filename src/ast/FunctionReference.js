@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
-import {Stack} from '../lib/Stack';
+import { SpelNode } from './SpelNode';
+import { Stack } from '../lib/Stack';
 
 /**
  * A function reference is of the form "#someFunction(a,b,c)". Functions may be defined in
@@ -33,7 +33,7 @@ import {Stack} from '../lib/Stack';
  * @since 0.2.0
  */
 
-function createNode(functionName, position, args) {
+function createNode(functionName: string, position: number, args: any[]): any {
     var node = SpelNode.create('function', position);
 
     node.getRaw = function () {
@@ -43,7 +43,7 @@ function createNode(functionName, position, args) {
         };
     };
 
-    node.getValue = function (state) {
+    node.getValue = function (state: any) {
         var locals = state.locals || {},
             context = state.rootContext,
             compiledArgs = [];
