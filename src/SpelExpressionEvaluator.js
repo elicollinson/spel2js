@@ -19,14 +19,29 @@
  * @since 0.2.0
  */
 
-import {SpelExpressionParser as spelExpressionParser} from './SpelExpressionParser';
-import {Stack} from './lib/Stack';
+import { SpelExpressionParser } from './SpelExpressionParser';
+import { Stack } from './lib/Stack';
 
-var spelExpressionEvaluator = {};
+interface State {
+    rootContext: any;
+    activeContext: Stack;
+    locals?: any;
+}
 
-function evalCompiled(compiledExpression, context, locals) {
-    var activeContext = new Stack(),
-        state;
+interface CompiledExpression {
+    getValue(state: State): any;
+}
+
+interface Evaluator {
+    eval(context?: any, locals?: any): any;
+    _compiledExpression: CompiledExpression;
+}
+
+const spelExpressionEvaluator = {};
+
+function evalCompiled(compiledExpression: CompiledExpression, context: any, locals: any): any {
+    const activeContext = new Stack();
+    let state: State;
 
     if (!context) {
         context = {};
@@ -42,18 +57,18 @@ function evalCompiled(compiledExpression, context, locals) {
     return compiledExpression.getValue(state);
 }
 
-spelExpressionEvaluator.compile = function (expression) {
-    var compiledExpression = spelExpressionParser().parse(expression);
+spelExpressionEvaluator.compile = function (expression: string): Evaluator {
+    const compiledExpression = SpelExpressionParser().parse(expression);
     return {
-        eval: function (context, locals) {
+        eval: function (context?: any, locals?: any): any {
             return evalCompiled(compiledExpression, context, locals);
         },
         _compiledExpression: compiledExpression
     };
 };
 
-spelExpressionEvaluator.eval = function (expression, context, locals) {
+spelExpressionEvaluator.eval = function (expression: string, context?: any, locals?: any): any {
     return spelExpressionEvaluator.compile(expression).eval(context, locals);
 };
 
-export {spelExpressionEvaluator as SpelExpressionEvaluator};
+export { spelExpressionEvaluator as SpelExpressionEvaluator };

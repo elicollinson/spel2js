@@ -1,15 +1,15 @@
-import {SpelExpressionEvaluator as evaluator} from '../../src/SpelExpressionEvaluator.js';
-import {StandardContext} from '../../src/StandardContext'
+import { SpelExpressionEvaluator as evaluator } from '../../src/SpelExpressionEvaluator';
+import { StandardContext } from '../../src/StandardContext';
 
-describe('spel expression evaluator', ()=>{
+describe('spel expression evaluator', () => {
 
-    beforeEach(()=>{
+    beforeEach(() => {
         // add spies
     });
 
-    describe('compile', ()=>{
+    describe('compile', () => {
 
-        it('should compile an expression an return an evaluator', ()=>{
+        it('should compile an expression an return an evaluator', () => {
             //when
             let compiledExpression = evaluator.compile('1234');
 
@@ -17,7 +17,7 @@ describe('spel expression evaluator', ()=>{
             expect(compiledExpression.eval).toBeDefined();
         });
 
-        it('should compile expression with constructor', ()=>{
+        it('should compile expression with constructor', () => {
             //when
             let compiledExpression = evaluator.compile('new java.text.SimpleDateFormat("yyyy-MM-dd").parse("2022-01-01")');
 
@@ -25,7 +25,7 @@ describe('spel expression evaluator', ()=>{
             expect(compiledExpression.eval).toBeDefined();
         });
 
-        it('should compile expression with array constructor without dimensions', ()=>{
+        it('should compile expression with array constructor without dimensions', () => {
             //when
             let compiledExpression = evaluator.compile('new int[]{1,2,3}');
 
@@ -33,7 +33,7 @@ describe('spel expression evaluator', ()=>{
             expect(compiledExpression.eval).toBeDefined();
         });
 
-        it('should compile expression with array constructor with dimensions', ()=>{
+        it('should compile expression with array constructor with dimensions', () => {
             //when
             let compiledExpression = evaluator.compile('new int[3]{1,2,3}');
 
@@ -41,7 +41,7 @@ describe('spel expression evaluator', ()=>{
             expect(compiledExpression.eval).toBeDefined();
         });
 
-        it('should compile expression with type reference', ()=>{
+        it('should compile expression with type reference', () => {
             //when
             let compiledExpression = evaluator.compile('T(java.time.LocalTime).parse("11:22")');
 
@@ -52,11 +52,11 @@ describe('spel expression evaluator', ()=>{
     });
 
 
-    describe('parse', ()=>{
+    describe('parse', () => {
 
-        describe('primitives', ()=>{
+        describe('primitives', () => {
 
-            it('should evaluate a number', ()=>{
+            it('should evaluate a number', () => {
                 //when
                 let numberInt = evaluator.eval('123');
                 let numberFloat = evaluator.eval('123.4');
@@ -70,7 +70,7 @@ describe('spel expression evaluator', ()=>{
                 expect(negativeNumberFloat).toBe(-123.4);
             });
 
-            it('should evaluate a string', ()=>{
+            it('should evaluate a string', () => {
                 //when
                 let stringSingle = evaluator.eval('\'hello world!\'');
                 let stringDouble = evaluator.eval('"hello world!"');
@@ -80,7 +80,7 @@ describe('spel expression evaluator', ()=>{
                 expect(stringDouble).toBe('hello world!');
             });
 
-            it('should evaluate a string with embedded escaped single quotes', ()=>{
+            it('should evaluate a string with embedded escaped single quotes', () => {
                 //when
                 let stringSingle = evaluator.eval('\'hello \'\'world\'\'!\'');
                 let stringDouble = evaluator.eval('"hello \'\'world\'\'!"');
@@ -90,7 +90,7 @@ describe('spel expression evaluator', ()=>{
                 expect(stringDouble).toBe('hello \'world\'!');
             });
 
-            it('should evaluate a string with embedded escaped double quotes', ()=>{
+            it('should evaluate a string with embedded escaped double quotes', () => {
                 //when
                 let stringSingle = evaluator.eval('\'hello ""world""!\'');
                 let stringDouble = evaluator.eval('"hello ""world""!"');
@@ -100,7 +100,7 @@ describe('spel expression evaluator', ()=>{
                 expect(stringDouble).toBe('hello "world"!');
             });
 
-            it('should evaluate a boolean', ()=>{
+            it('should evaluate a boolean', () => {
                 //when
                 let boolTrue = evaluator.eval('true');
                 let boolFalse = evaluator.eval('false');
@@ -112,11 +112,11 @@ describe('spel expression evaluator', ()=>{
 
         });
 
-        describe('lookups', ()=>{
+        describe('lookups', () => {
 
-            let context;
+            let context: any;
 
-            beforeEach(()=>{
+            beforeEach(() => {
                 context = {
                     iAmANumber: 1,
                     iAmANestedPropertyName: 'propLookup',
@@ -131,7 +131,7 @@ describe('spel expression evaluator', ()=>{
                 };
             });
 
-            it('should look up a primitive in the context', ()=>{
+            it('should look up a primitive in the context', () => {
                 //when
                 let number = evaluator.eval('iAmANumber', context);
 
@@ -139,7 +139,7 @@ describe('spel expression evaluator', ()=>{
                 expect(number).toBe(1);
             });
 
-            it('should look up a nested primitive in the context using dot notation', ()=>{
+            it('should look up a nested primitive in the context using dot notation', () => {
                 //when
                 let string = evaluator.eval('nested.iAmAString', context);
 
@@ -147,7 +147,7 @@ describe('spel expression evaluator', ()=>{
                 expect(string).toBe('hi');
             });
 
-            it('should look up a doubly nested primitive in the context using dot notation', ()=>{
+            it('should look up a doubly nested primitive in the context using dot notation', () => {
                 //when
                 let bool = evaluator.eval('nested.reallyNested.iAmTrue', context);
 
@@ -155,7 +155,7 @@ describe('spel expression evaluator', ()=>{
                 expect(bool).toBe(true);
             });
 
-            it('should look up a nested primitive in the context using bracket notation literal', ()=>{
+            it('should look up a nested primitive in the context using bracket notation literal', () => {
                 //when
                 let string = evaluator.eval('nested["iAmAString"]', context);
 
@@ -163,7 +163,7 @@ describe('spel expression evaluator', ()=>{
                 expect(string).toBe('hi');
             });
 
-            it('should look up a nested primitive in the context using bracket notation', ()=>{
+            it('should look up a nested primitive in the context using bracket notation', () => {
                 //when
                 let string = evaluator.eval('nested[iAmANestedPropertyName]', context);
 
@@ -171,7 +171,7 @@ describe('spel expression evaluator', ()=>{
                 expect(string).toBe('Found!');
             });
 
-            it('should look up a really nested primitive in the context using bracket notation', ()=>{
+            it('should look up a really nested primitive in the context using bracket notation', () => {
                 //when
                 let string = evaluator.eval('nested.reallyNested[nested.iAmAString]', context);
 
@@ -179,9 +179,9 @@ describe('spel expression evaluator', ()=>{
                 expect(string).toBe('bye');
             });
 
-            it('should return null instead of throw error when using safe navigation', ()=>{
+            it('should return null instead of throw error when using safe navigation', () => {
                 //when
-                let willThrow = ()=>{evaluator.eval('nested.doesNotExist');};
+                let willThrow = () => { evaluator.eval('nested.doesNotExist'); };
                 let willBeNull = evaluator.eval('nested?.doesNotExist', context);
                 let willAlsoBeNull = evaluator.eval('nested?.doesNotExist?.definitelyDoesNotExist', context);
 
@@ -192,9 +192,9 @@ describe('spel expression evaluator', ()=>{
         });
 
 
-        describe('comparisons', ()=>{
+        describe('comparisons', () => {
 
-            it('should evaluate an equality', ()=>{
+            it('should evaluate an equality', () => {
                 //when
                 let comp1 = evaluator.eval('1 == 1');
                 let comp2 = evaluator.eval('1 == 2');
@@ -204,7 +204,7 @@ describe('spel expression evaluator', ()=>{
                 expect(comp2).toBe(false);
             });
 
-            it('should evaluate an equality with lookups', ()=>{
+            it('should evaluate an equality with lookups', () => {
                 //given
                 let context = {
                     left: 1,
@@ -218,7 +218,7 @@ describe('spel expression evaluator', ()=>{
                 expect(comp).toBe(true);
             });
 
-            it('should evaluate an inequality (not equal)', ()=>{
+            it('should evaluate an inequality (not equal)', () => {
                 //when
                 let comp1 = evaluator.eval('1 != 2');
                 let comp2 = evaluator.eval('1 != 1');
@@ -228,7 +228,7 @@ describe('spel expression evaluator', ()=>{
                 expect(comp2).toBe(false);
             });
 
-            it('should evaluate an inequality (greater than)', ()=>{
+            it('should evaluate an inequality (greater than)', () => {
                 //when
                 let comp1 = evaluator.eval('2 > 1');
                 let comp2 = evaluator.eval('1 > 1');
@@ -238,7 +238,7 @@ describe('spel expression evaluator', ()=>{
                 expect(comp2).toBe(false);
             });
 
-            it('should evaluate an inequality (greater than or equal to)', ()=>{
+            it('should evaluate an inequality (greater than or equal to)', () => {
                 //when
                 let comp1 = evaluator.eval('1 >= 1');
                 let comp2 = evaluator.eval('2 >= 1');
@@ -250,7 +250,7 @@ describe('spel expression evaluator', ()=>{
                 expect(comp3).toBe(false);
             });
 
-            it('should evaluate an inequality (less than)', ()=>{
+            it('should evaluate an inequality (less than)', () => {
                 //when
                 let comp1 = evaluator.eval('1 < 2');
                 let comp2 = evaluator.eval('1 < 1');
@@ -260,7 +260,7 @@ describe('spel expression evaluator', ()=>{
                 expect(comp2).toBe(false);
             });
 
-            it('should evaluate an inequality (less than or equal to)', ()=>{
+            it('should evaluate an inequality (less than or equal to)', () => {
                 //when
                 let comp1 = evaluator.eval('1 <= 2');
                 let comp2 = evaluator.eval('1 <= 2');
@@ -272,7 +272,7 @@ describe('spel expression evaluator', ()=>{
                 expect(comp3).toBe(false);
             });
 
-            it('should evaluate a complex inequality', ()=>{
+            it('should evaluate a complex inequality', () => {
                 //when
                 let comp = evaluator.eval('"abc".length <= "abcde".length');
 
@@ -282,19 +282,19 @@ describe('spel expression evaluator', ()=>{
         });
 
 
-        describe('method invocation', ()=>{
+        describe('method invocation', () => {
 
             let context = {
-                funky: ()=>{
+                funky: () => {
                     return 'fresh';
                 },
-                argumentative: (arg)=>{
+                argumentative: (arg: any) => {
                     return arg;
                 },
                 name: 'ben'
             };
 
-            it('should look up and invoke a function', ()=>{
+            it('should look up and invoke a function', () => {
                 //when
                 let ret = evaluator.eval('funky()', context);
 
@@ -302,7 +302,7 @@ describe('spel expression evaluator', ()=>{
                 expect(ret).toBe('fresh');
             });
 
-            it('should look up and invoke a function with arguments', ()=>{
+            it('should look up and invoke a function with arguments', () => {
                 //when
                 let ret = evaluator.eval('argumentative("i disagree!")', context);
 
@@ -310,7 +310,7 @@ describe('spel expression evaluator', ()=>{
                 expect(ret).toBe('i disagree!');
             });
 
-            it('should use a property if getter not available', ()=>{
+            it('should use a property if getter not available', () => {
                 //when
                 let ret = evaluator.eval('getName()', context);
 
@@ -318,7 +318,7 @@ describe('spel expression evaluator', ()=>{
                 expect(ret).toBe('ben');
             });
 
-            it('should set a property if setter not available', ()=>{
+            it('should set a property if setter not available', () => {
                 //given
                 evaluator.eval('setName("steve")', context);
 
@@ -333,13 +333,13 @@ describe('spel expression evaluator', ()=>{
         });
 
 
-        describe('locals', ()=>{
+        describe('locals', () => {
 
-            it('should refer to a local variable', ()=>{
+            it('should refer to a local variable', () => {
                 //given
                 let context = {
-                        myString: 'global context'
-                    },
+                    myString: 'global context'
+                },
                     locals = {
                         myString: 'hello world!'
                     };
@@ -351,11 +351,11 @@ describe('spel expression evaluator', ()=>{
                 expect(local).toBe(true);
             });
 
-            it('should refer to the root context', ()=>{
+            it('should refer to the root context', () => {
                 //given
                 let context = {
-                        myString: 'global context'
-                    },
+                    myString: 'global context'
+                },
                     locals = {
                         myString: 'hello world!'
                     };
@@ -367,11 +367,11 @@ describe('spel expression evaluator', ()=>{
                 expect(root).toBe(context);
             });
 
-            it('should refer the "this" context', ()=>{
+            it('should refer the "this" context', () => {
                 //given
                 let context = {
-                        myString: 'global context'
-                    },
+                    myString: 'global context'
+                },
                     locals = {
                         myString: 'hello world!'
                     };
@@ -383,11 +383,11 @@ describe('spel expression evaluator', ()=>{
                 expect(that).toBe(context);
             });
 
-            it('should call a local function', ()=>{
+            it('should call a local function', () => {
                 //given
                 let context = {};
                 let locals = {
-                    foo(echo) {
+                    foo(echo: any) {
                         return echo;
                     }
                 };
@@ -402,9 +402,9 @@ describe('spel expression evaluator', ()=>{
         });
 
 
-        describe('math', ()=>{
+        describe('math', () => {
 
-            it('should add 2 numbers', ()=>{
+            it('should add 2 numbers', () => {
                 //when
                 let sum = evaluator.eval('1 + 1');
 
@@ -413,7 +413,7 @@ describe('spel expression evaluator', ()=>{
             });
 
 
-            it('should add 3 numbers', ()=>{
+            it('should add 3 numbers', () => {
                 //when
                 let sum = evaluator.eval('1 + 1 + 1');
 
@@ -421,7 +421,7 @@ describe('spel expression evaluator', ()=>{
                 expect(sum).toBe(3);
             });
 
-            it('should subtract 2 numbers', ()=>{
+            it('should subtract 2 numbers', () => {
                 //when
                 let difference = evaluator.eval('1 + 1');
 
@@ -429,7 +429,7 @@ describe('spel expression evaluator', ()=>{
                 expect(difference).toBe(2);
             });
 
-            it('should multiply 2 numbers', ()=>{
+            it('should multiply 2 numbers', () => {
                 //when
                 let product = evaluator.eval('1 + 1');
 
@@ -437,7 +437,7 @@ describe('spel expression evaluator', ()=>{
                 expect(product).toBe(2);
             });
 
-            it('should divide 2 numbers', ()=>{
+            it('should divide 2 numbers', () => {
                 //when
                 let quotient = evaluator.eval('1 + 1');
 
@@ -445,7 +445,7 @@ describe('spel expression evaluator', ()=>{
                 expect(quotient).toBe(2);
             });
 
-            it('should find the modulus of 2 numbers', ()=>{
+            it('should find the modulus of 2 numbers', () => {
                 //when
                 let mod = evaluator.eval('10 % 8');
 
@@ -453,7 +453,7 @@ describe('spel expression evaluator', ()=>{
                 expect(mod).toBe(2);
             });
 
-            it('should evaluate an exponent', ()=>{
+            it('should evaluate an exponent', () => {
                 //when
                 let mod = evaluator.eval('10^2');
 
@@ -461,7 +461,7 @@ describe('spel expression evaluator', ()=>{
                 expect(mod).toBe(100);
             });
 
-            it('should honor standard order of operations', ()=>{
+            it('should honor standard order of operations', () => {
                 //when
                 let math = evaluator.eval('8 + 4 * 6 - 2 * 3 / 2'); //8+(4*6)-(2*3/2) = 29
 
@@ -471,9 +471,9 @@ describe('spel expression evaluator', ()=>{
 
         });
 
-        describe('matches', ()=>{
+        describe('matches', () => {
 
-            it('should return true if the left side matches the regexp string on the right side', ()=>{
+            it('should return true if the left side matches the regexp string on the right side', () => {
                 //when
                 let matches = evaluator.eval('"the quick brown fox" matches "^the.*fox$"');
 
@@ -481,7 +481,7 @@ describe('spel expression evaluator', ()=>{
                 expect(matches).toBe(true);
             });
 
-            it('should return false if the left side does not match the regexp string on the right side', ()=>{
+            it('should return false if the left side does not match the regexp string on the right side', () => {
                 //when
                 let matches = evaluator.eval('"the quick brown dog" matches "^the.*fox$"');
 
@@ -490,9 +490,9 @@ describe('spel expression evaluator', ()=>{
             });
 
 
-            it('should throw if the regexp is invalid', ()=>{
+            it('should throw if the regexp is invalid', () => {
                 //when
-                let willthrow = ()=>evaluator.eval('"foo" matches "["');
+                let willthrow = () => evaluator.eval('"foo" matches "["');
 
                 //then
                 expect(willthrow).toThrow();
@@ -502,9 +502,9 @@ describe('spel expression evaluator', ()=>{
         });
 
 
-        describe('ternary', ()=>{
+        describe('ternary', () => {
 
-            it('should return first argument if true', ()=>{
+            it('should return first argument if true', () => {
                 //when
                 let tern = evaluator.eval('true ? "yes" : "no"');
 
@@ -512,7 +512,7 @@ describe('spel expression evaluator', ()=>{
                 expect(tern).toBe('yes');
             });
 
-            it('should return second argument if false', ()=>{
+            it('should return second argument if false', () => {
                 //when
                 let tern = evaluator.eval('false ? "yes" : "no"');
 
@@ -520,7 +520,7 @@ describe('spel expression evaluator', ()=>{
                 expect(tern).toBe('no');
             });
 
-            it('should return expression if truthy, or ifFalseExpression if null ', ()=>{
+            it('should return expression if truthy, or ifFalseExpression if null ', () => {
                 //when
                 let elvisTruthy = evaluator.eval('"Thank you." ?: "Thank you very much."');
                 let elvisFalsy = evaluator.eval('null ?: "Thank you very much."');
@@ -533,9 +533,9 @@ describe('spel expression evaluator', ()=>{
         });
 
 
-        describe('assignment', ()=>{
+        describe('assignment', () => {
 
-            it('should assign a value to the proper context with the specified property name', ()=>{
+            it('should assign a value to the proper context with the specified property name', () => {
                 //given
                 let context = {
                     name: 'Nikola Tesla',
@@ -552,7 +552,7 @@ describe('spel expression evaluator', ()=>{
                 expect(context.name).toBe('Mike Tesla');
             });
 
-            it('should assign to a nested context', ()=>{
+            it('should assign to a nested context', () => {
                 //given
                 let context = {
                     nested: {
@@ -573,9 +573,9 @@ describe('spel expression evaluator', ()=>{
         });
 
 
-        describe('complex literals', ()=>{
+        describe('complex literals', () => {
 
-            it('should create an array', ()=>{
+            it('should create an array', () => {
                 //when
                 let arr = evaluator.eval('{1, 2, 3, 4}');
 
@@ -583,7 +583,7 @@ describe('spel expression evaluator', ()=>{
                 expect(arr).toEqual([1, 2, 3, 4]);
             });
 
-            it('should get the size of an array', ()=>{
+            it('should get the size of an array', () => {
                 //when
                 let size = evaluator.eval('{1, 2, 3, 4}.size()');
 
@@ -591,7 +591,7 @@ describe('spel expression evaluator', ()=>{
                 expect(size).toEqual(4);
             });
 
-            it('should check whether an array contains an element', ()=>{
+            it('should check whether an array contains an element', () => {
                 //given
                 let context = {
                     classification: 'PHONE',
@@ -604,19 +604,19 @@ describe('spel expression evaluator', ()=>{
                 expect(shouldBeTrue).toEqual(true)
             });
 
-            it('should create a map', ()=>{
+            it('should create a map', () => {
                 //when
                 let map = evaluator.eval('{name:"Nikola",dob:"10-July-1856"}');
 
                 //then
-                expect(map).toEqual({name: 'Nikola', dob: '10-July-1856'});
+                expect(map).toEqual({ name: 'Nikola', dob: '10-July-1856' });
             });
 
         });
 
-        describe('unary', ()=>{
+        describe('unary', () => {
 
-            it('should increment an integer but return original value', ()=>{
+            it('should increment an integer but return original value', () => {
                 //given
                 let parsed = evaluator.compile('123++');
 
@@ -629,7 +629,7 @@ describe('spel expression evaluator', ()=>{
                 expect(inc2).toBe(124);
             });
 
-            it('should decrement an integer but return original value', ()=>{
+            it('should decrement an integer but return original value', () => {
                 //given
                 let parsed = evaluator.compile('123--');
 
@@ -642,7 +642,7 @@ describe('spel expression evaluator', ()=>{
                 expect(dec2).toBe(122);
             });
 
-            it('should increment an integer and return new value', ()=>{
+            it('should increment an integer and return new value', () => {
                 //given
                 let parsed = evaluator.compile('++123');
 
@@ -655,7 +655,7 @@ describe('spel expression evaluator', ()=>{
                 expect(inc2).toBe(125);
             });
 
-            it('should decrement an integer and return new value', ()=>{
+            it('should decrement an integer and return new value', () => {
                 //given
                 let parsed = evaluator.compile('--123');
 
@@ -668,7 +668,7 @@ describe('spel expression evaluator', ()=>{
                 expect(dec2).toBe(121);
             });
 
-            it('should increment a property on the context', ()=>{
+            it('should increment a property on the context', () => {
                 //given
                 let context = {
                     int: 123
@@ -681,7 +681,7 @@ describe('spel expression evaluator', ()=>{
                 expect(context.int).toBe(124);
             });
 
-            it('should increment a local variable', ()=>{
+            it('should increment a local variable', () => {
                 //given
                 let context = {
                     int: 123
@@ -697,7 +697,7 @@ describe('spel expression evaluator', ()=>{
                 expect(locals.int).toBe(322);
             });
 
-            it('should invert a boolean', ()=>{
+            it('should invert a boolean', () => {
                 //when
                 let bool = evaluator.eval('!true');
 
@@ -708,9 +708,9 @@ describe('spel expression evaluator', ()=>{
         });
 
 
-        describe('logical operators', ()=>{
+        describe('logical operators', () => {
 
-            it('should evaluate "and" expressions', ()=>{
+            it('should evaluate "and" expressions', () => {
                 //when
                 let and1 = evaluator.eval('true && true');
                 let and2 = evaluator.eval('true && false');
@@ -724,7 +724,7 @@ describe('spel expression evaluator', ()=>{
                 expect(and4).toBe(false);
             });
 
-            it('should evaluate "and" expressions', ()=>{
+            it('should evaluate "and" expressions', () => {
                 //when
                 let or1 = evaluator.eval('true || true');
                 let or2 = evaluator.eval('true || false');
@@ -741,9 +741,9 @@ describe('spel expression evaluator', ()=>{
         });
 
 
-        describe('selection/projection', ()=>{
+        describe('selection/projection', () => {
 
-            it('should return a new list based on selection expression', ()=>{
+            it('should return a new list based on selection expression', () => {
                 //given
                 let context = {
                     collection: [1, 2, 3, 4, 5, 6]
@@ -756,7 +756,7 @@ describe('spel expression evaluator', ()=>{
                 expect(newCollection).toEqual([1, 2, 3]);
             });
 
-            it('should return a new map based on selection expression', ()=>{
+            it('should return a new map based on selection expression', () => {
                 //given
                 let context = {
                     collection: {
@@ -773,11 +773,11 @@ describe('spel expression evaluator', ()=>{
                 let newCollection2 = evaluator.eval('collection.?[key == "a"]', context);
 
                 //then
-                expect(newCollection1).toEqual({a: 1, b: 2, c: 3});
-                expect(newCollection2).toEqual({a: 1});
+                expect(newCollection1).toEqual({ a: 1, b: 2, c: 3 });
+                expect(newCollection2).toEqual({ a: 1 });
             });
 
-            it('should return the first element of list or map', ()=>{
+            it('should return the first element of list or map', () => {
                 //given
                 let context = {
                     list: [1, 2, 3, 4, 5, 6],
@@ -796,10 +796,10 @@ describe('spel expression evaluator', ()=>{
 
                 //then
                 expect(listFirst).toEqual(1);
-                expect(mapFirst).toEqual({a: 1});
+                expect(mapFirst).toEqual({ a: 1 });
             });
 
-            it('should return the last element of list or map', ()=>{
+            it('should return the last element of list or map', () => {
                 //given
                 let context = {
                     list: [1, 2, 3, 4, 5, 6],
@@ -818,10 +818,10 @@ describe('spel expression evaluator', ()=>{
 
                 //then
                 expect(listFirst).toEqual(3);
-                expect(mapFirst).toEqual({c: 3});
+                expect(mapFirst).toEqual({ c: 3 });
             });
 
-            it('should return a list of projected values from a list of objects', ()=>{
+            it('should return a list of projected values from a list of objects', () => {
                 //given
                 let context = {
                     list: [
@@ -844,7 +844,7 @@ describe('spel expression evaluator', ()=>{
                 expect(names).toEqual(['Ben', 'Kris', 'Ansy']);
             });
 
-            it('should return a list of entries from a map (not quite like in Java because key must be a string)', ()=>{
+            it('should return a list of entries from a map (not quite like in Java because key must be a string)', () => {
                 //given
                 let context = {
                     map: {
@@ -869,8 +869,8 @@ describe('spel expression evaluator', ()=>{
 
         });
 
-        describe('constructor', ()=>{
-            it('should create new int array', ()=>{
+        describe('constructor', () => {
+            it('should create new int array', () => {
                 //given
                 let context = {};
 
@@ -881,7 +881,7 @@ describe('spel expression evaluator', ()=>{
                 expect(newArray).toEqual([1, 2, 3]);
             });
 
-            it('should create new int array with dimension', ()=>{
+            it('should create new int array with dimension', () => {
                 //given
                 let context = {};
 
@@ -892,7 +892,7 @@ describe('spel expression evaluator', ()=>{
                 expect(newArray).toEqual([1, 2, 3]);
             });
 
-            it('should create new empty array', ()=>{
+            it('should create new empty array', () => {
                 //given
                 let context = {};
 
@@ -903,7 +903,7 @@ describe('spel expression evaluator', ()=>{
                 expect(newArray).toEqual([]);
             });
 
-            it('should create new empty array with dimension', ()=>{
+            it('should create new empty array with dimension', () => {
                 //given
                 let context = {};
 

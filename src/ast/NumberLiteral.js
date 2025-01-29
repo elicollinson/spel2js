@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import { SpelNode } from './SpelNode';
 
 /**
  * Expression language AST node that represents a literal number of any kind (since JavaScript only supports doubles anyway)
@@ -24,17 +24,15 @@ import {SpelNode} from './SpelNode';
  * @since 0.2.0
  */
 
-function createNode(value, position) {
+function createNode(value: number, position: number) {
     var node = SpelNode.create('number', position);
 
-    node.getValue = function () {
+    node.getValue = function (): number {
         return value;
     };
 
-    node.setValue = function (newValue) {
-        /*jshint -W093 */
+    node.setValue = function (newValue: number): number {
         return value = newValue;
-        /*jshint +W093 */
     };
 
     return node;

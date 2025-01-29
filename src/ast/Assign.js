@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import { SpelNode } from './SpelNode';
+import { State } from '../types';
 
 /**
  * Represents assignment. An alternative to calling setValue() for an expression is to use
@@ -27,10 +28,10 @@ import {SpelNode} from './SpelNode';
  * @since 0.2.0
  */
 
-function createNode(position, property, assignedValue) {
+function createNode(position: number, property: any, assignedValue: any) {
     var node = SpelNode.create('assign', position, property, assignedValue);
 
-    node.getValue = function (state) {
+    node.getValue = function (state: State) {
         var context = state.activeContext.peek();
 
         if (!context) {

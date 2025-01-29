@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import { SpelNode } from './SpelNode';
+import { State } from '../types';
 
 /**
  * Implements division operator.
@@ -26,10 +27,10 @@ import {SpelNode} from './SpelNode';
  * @since 0.2.0
  */
 
-function createNode(position, left, right) {
+function createNode(position: number, left: any, right: any): any {
     var node = SpelNode.create('op-divide', position, left, right);
 
-    node.getValue = function (state) {
+    node.getValue = function (state: State): number {
         return left.getValue(state) / right.getValue(state);
     };
 

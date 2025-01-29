@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import { SpelNode } from './SpelNode';
 
 /**
  * Increment operator. Can be used in a prefix or postfix form. This will throw
@@ -27,10 +27,10 @@ import {SpelNode} from './SpelNode';
  * @since 0.2.0
  */
 
-function createNode(position, postfix, int) {
+function createNode(position: number, postfix: boolean, int: any): any {
     var node = SpelNode.create('op-inc', position, int);
 
-    node.getValue = function (state) {
+    node.getValue = function (state: any): any {
         var cur = int.getValue(state);
         int.setValue(cur + 1, state);
         if (postfix) {
@@ -42,6 +42,6 @@ function createNode(position, postfix, int) {
     return node;
 }
 
-export var OpInc =  {
+export var OpInc = {
     create: createNode
 };

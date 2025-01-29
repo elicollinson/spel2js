@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import { SpelNode } from './SpelNode';
+import { State } from '../types';
 
 /**
  * Represent a map in an expression, e.g. '{name:'foo',age:12}'
@@ -24,14 +25,14 @@ import {SpelNode} from './SpelNode';
  * @since 0.2.0
  */
 
-function createNode(position, elements) {
+function createNode(position: number, elements: any[]): any {
     var node = SpelNode.create('map', position),
         mapPieces = [].concat(elements || []);
 
-    node.getValue = function (state) {
+    node.getValue = function (state: State): any {
         var key = true,
             keyValue = null,
-            map = {};
+            map: { [key: string]: any } = {};
 
         mapPieces.forEach(function (piece) {
             if (key) {
@@ -53,6 +54,6 @@ function createNode(position, elements) {
     return node;
 }
 
-export var InlineMap =  {
+export var InlineMap = {
     create: createNode
 };

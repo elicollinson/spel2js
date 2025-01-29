@@ -21,17 +21,17 @@
  * @since 0.2.0
  */
 
-import {Token} from './Token';
-import {TokenKind} from './TokenKind';
+import { Token } from './Token';
+import { TokenKind } from './TokenKind';
 
-var ALTERNATIVE_OPERATOR_NAMES = ['DIV', 'EQ', 'GE', 'GT', 'LE', 'LT', 'MOD', 'NE', 'NOT'],
-    FLAGS = [],
-    IS_DIGIT = 1,
-    IS_HEXDIGIT = 2,
-    IS_ALPHA = 4;
+const ALTERNATIVE_OPERATOR_NAMES = ['DIV', 'EQ', 'GE', 'GT', 'LE', 'LT', 'MOD', 'NE', 'NOT'];
+const FLAGS: number[] = [];
+const IS_DIGIT = 1;
+const IS_HEXDIGIT = 2;
+const IS_ALPHA = 4;
 
 function init() {
-    var ch;
+    let ch: number;
 
     for (ch = '0'.charCodeAt(0); ch <= '9'.charCodeAt(0); ch += 1) {
         FLAGS[ch] |= IS_DIGIT | IS_HEXDIGIT;
@@ -52,215 +52,202 @@ function init() {
 
 init();
 
-function tokenize(inputData) {
-    var expressionString = inputData,
-        toProcess = inputData + '\0',
-        max = toProcess.length,
-        pos = 0,
-        tokens = [];
+function tokenize(inputData: string): Token[] {
+    const expressionString = inputData;
+    const toProcess = inputData + '\0';
+    const max = toProcess.length;
+    let pos = 0;
+    const tokens: Token[] = [];
 
     function process() {
-        var ch;
+        let ch: string;
 
         while (pos < max) {
             ch = toProcess[pos];
             if (isAlphabetic(ch)) {
                 lexIdentifier();
-            }
-            else {
+            } else {
                 switch (ch) {
-                case '+':
-                    if (isTwoCharToken(TokenKind.INC)) {
-                        pushPairToken(TokenKind.INC);
-                    }
-                    else {
-                        pushCharToken(TokenKind.PLUS);
-                    }
-                    break;
-                case '_': // the other way to start an identifier
-                    lexIdentifier();
-                    break;
-                case '-':
-                    if (isTwoCharToken(TokenKind.DEC)) {
-                        pushPairToken(TokenKind.DEC);
-                    }
-                    else {
-                        pushCharToken(TokenKind.MINUS);
-                    }
-                    break;
-                case ':':
-                    pushCharToken(TokenKind.COLON);
-                    break;
-                case '.':
-                    pushCharToken(TokenKind.DOT);
-                    break;
-                case ',':
-                    pushCharToken(TokenKind.COMMA);
-                    break;
-                case '*':
-                    pushCharToken(TokenKind.STAR);
-                    break;
-                case '/':
-                    pushCharToken(TokenKind.DIV);
-                    break;
-                case '%':
-                    pushCharToken(TokenKind.MOD);
-                    break;
-                case '(':
-                    pushCharToken(TokenKind.LPAREN);
-                    break;
-                case ')':
-                    pushCharToken(TokenKind.RPAREN);
-                    break;
-                case '[':
-                    pushCharToken(TokenKind.LSQUARE);
-                    break;
-                case '#':
-                    pushCharToken(TokenKind.HASH);
-                    break;
-                case ']':
-                    pushCharToken(TokenKind.RSQUARE);
-                    break;
-                case '{':
-                    pushCharToken(TokenKind.LCURLY);
-                    break;
-                case '}':
-                    pushCharToken(TokenKind.RCURLY);
-                    break;
-                case '@':
-                    pushCharToken(TokenKind.BEAN_REF);
-                    break;
-                case '^':
-                    if (isTwoCharToken(TokenKind.SELECT_FIRST)) {
-                        pushPairToken(TokenKind.SELECT_FIRST);
-                    }
-                    else {
-                        pushCharToken(TokenKind.POWER);
-                    }
-                    break;
-                case '!':
-                    if (isTwoCharToken(TokenKind.NE)) {
-                        pushPairToken(TokenKind.NE);
-                    }
-                    else if (isTwoCharToken(TokenKind.PROJECT)) {
-                        pushPairToken(TokenKind.PROJECT);
-                    }
-                    else {
-                        pushCharToken(TokenKind.NOT);
-                    }
-                    break;
-                case '=':
-                    if (isTwoCharToken(TokenKind.EQ)) {
-                        pushPairToken(TokenKind.EQ);
-                    }
-                    else {
-                        pushCharToken(TokenKind.ASSIGN);
-                    }
-                    break;
-                case '&':
-                    if (!isTwoCharToken(TokenKind.SYMBOLIC_AND)) {
-                        throw {
-                            name: 'SpelParseException',
-                            message: 'Missing character \'&\' in expression (' + expressionString + ') at position ' + pos
-                        };
-                    }
-                    pushPairToken(TokenKind.SYMBOLIC_AND);
-                    break;
-                case '|':
-                    if (!isTwoCharToken(TokenKind.SYMBOLIC_OR)) {
-                        throw {
-                            name: 'SpelParseException',
-                            message: 'Missing character \'|\' in expression (' + expressionString + ') at position ' + pos
-                        };
-                    }
-                    pushPairToken(TokenKind.SYMBOLIC_OR);
-                    break;
-                case '?':
-                    if (isTwoCharToken(TokenKind.SELECT)) {
-                        pushPairToken(TokenKind.SELECT);
-                    }
-                    else if (isTwoCharToken(TokenKind.ELVIS)) {
-                        pushPairToken(TokenKind.ELVIS);
-                    }
-                    else if (isTwoCharToken(TokenKind.SAFE_NAVI)) {
-                        pushPairToken(TokenKind.SAFE_NAVI);
-                    }
-                    else {
-                        pushCharToken(TokenKind.QMARK);
-                    }
-                    break;
-                case '$':
-                    if (isTwoCharToken(TokenKind.SELECT_LAST)) {
-                        pushPairToken(TokenKind.SELECT_LAST);
-                    }
-                    else {
+                    case '+':
+                        if (isTwoCharToken(TokenKind.INC)) {
+                            pushPairToken(TokenKind.INC);
+                        } else {
+                            pushCharToken(TokenKind.PLUS);
+                        }
+                        break;
+                    case '_': // the other way to start an identifier
                         lexIdentifier();
-                    }
-                    break;
-                case '>':
-                    if (isTwoCharToken(TokenKind.GE)) {
-                        pushPairToken(TokenKind.GE);
-                    }
-                    else {
-                        pushCharToken(TokenKind.GT);
-                    }
-                    break;
-                case '<':
-                    if (isTwoCharToken(TokenKind.LE)) {
-                        pushPairToken(TokenKind.LE);
-                    }
-                    else {
-                        pushCharToken(TokenKind.LT);
-                    }
-                    break;
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    lexNumericLiteral(ch === '0');
-                    break;
-                case ' ':
-                case '\t':
-                case '\r':
-                case '\n':
-                    // drift over white space
-                    pos += 1;
-                    break;
-                case '\'':
-                    lexQuotedStringLiteral();
-                    break;
-                case '"':
-                    lexDoubleQuotedStringLiteral();
-                    break;
-                case '\0':
-                    // hit sentinel at end of value
-                    pos += 1; // will take us to the end
-                    break;
-                case '\\':
-                    throw {
-                        name: 'SpelParseException',
-                        message: 'Unexpected escape character in expression (' + expressionString + ') at position ' + pos
-                    };
-                default:
-                    throw {
-                        name: 'SpelParseException',
-                        message: 'Cannot handle character \'' + ch + '\' in expression (' + expressionString + ') at position ' + pos
-                    };
+                        break;
+                    case '-':
+                        if (isTwoCharToken(TokenKind.DEC)) {
+                            pushPairToken(TokenKind.DEC);
+                        } else {
+                            pushCharToken(TokenKind.MINUS);
+                        }
+                        break;
+                    case ':':
+                        pushCharToken(TokenKind.COLON);
+                        break;
+                    case '.':
+                        pushCharToken(TokenKind.DOT);
+                        break;
+                    case ',':
+                        pushCharToken(TokenKind.COMMA);
+                        break;
+                    case '*':
+                        pushCharToken(TokenKind.STAR);
+                        break;
+                    case '/':
+                        pushCharToken(TokenKind.DIV);
+                        break;
+                    case '%':
+                        pushCharToken(TokenKind.MOD);
+                        break;
+                    case '(':
+                        pushCharToken(TokenKind.LPAREN);
+                        break;
+                    case ')':
+                        pushCharToken(TokenKind.RPAREN);
+                        break;
+                    case '[':
+                        pushCharToken(TokenKind.LSQUARE);
+                        break;
+                    case '#':
+                        pushCharToken(TokenKind.HASH);
+                        break;
+                    case ']':
+                        pushCharToken(TokenKind.RSQUARE);
+                        break;
+                    case '{':
+                        pushCharToken(TokenKind.LCURLY);
+                        break;
+                    case '}':
+                        pushCharToken(TokenKind.RCURLY);
+                        break;
+                    case '@':
+                        pushCharToken(TokenKind.BEAN_REF);
+                        break;
+                    case '^':
+                        if (isTwoCharToken(TokenKind.SELECT_FIRST)) {
+                            pushPairToken(TokenKind.SELECT_FIRST);
+                        } else {
+                            pushCharToken(TokenKind.POWER);
+                        }
+                        break;
+                    case '!':
+                        if (isTwoCharToken(TokenKind.NE)) {
+                            pushPairToken(TokenKind.NE);
+                        } else if (isTwoCharToken(TokenKind.PROJECT)) {
+                            pushPairToken(TokenKind.PROJECT);
+                        } else {
+                            pushCharToken(TokenKind.NOT);
+                        }
+                        break;
+                    case '=':
+                        if (isTwoCharToken(TokenKind.EQ)) {
+                            pushPairToken(TokenKind.EQ);
+                        } else {
+                            pushCharToken(TokenKind.ASSIGN);
+                        }
+                        break;
+                    case '&':
+                        if (!isTwoCharToken(TokenKind.SYMBOLIC_AND)) {
+                            throw {
+                                name: 'SpelParseException',
+                                message: 'Missing character \'&\' in expression (' + expressionString + ') at position ' + pos
+                            };
+                        }
+                        pushPairToken(TokenKind.SYMBOLIC_AND);
+                        break;
+                    case '|':
+                        if (!isTwoCharToken(TokenKind.SYMBOLIC_OR)) {
+                            throw {
+                                name: 'SpelParseException',
+                                message: 'Missing character \'|\' in expression (' + expressionString + ') at position ' + pos
+                            };
+                        }
+                        pushPairToken(TokenKind.SYMBOLIC_OR);
+                        break;
+                    case '?':
+                        if (isTwoCharToken(TokenKind.SELECT)) {
+                            pushPairToken(TokenKind.SELECT);
+                        } else if (isTwoCharToken(TokenKind.ELVIS)) {
+                            pushPairToken(TokenKind.ELVIS);
+                        } else if (isTwoCharToken(TokenKind.SAFE_NAVI)) {
+                            pushPairToken(TokenKind.SAFE_NAVI);
+                        } else {
+                            pushCharToken(TokenKind.QMARK);
+                        }
+                        break;
+                    case '$':
+                        if (isTwoCharToken(TokenKind.SELECT_LAST)) {
+                            pushPairToken(TokenKind.SELECT_LAST);
+                        } else {
+                            lexIdentifier();
+                        }
+                        break;
+                    case '>':
+                        if (isTwoCharToken(TokenKind.GE)) {
+                            pushPairToken(TokenKind.GE);
+                        } else {
+                            pushCharToken(TokenKind.GT);
+                        }
+                        break;
+                    case '<':
+                        if (isTwoCharToken(TokenKind.LE)) {
+                            pushPairToken(TokenKind.LE);
+                        } else {
+                            pushCharToken(TokenKind.LT);
+                        }
+                        break;
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        lexNumericLiteral(ch === '0');
+                        break;
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                        // drift over white space
+                        pos += 1;
+                        break;
+                    case '\'':
+                        lexQuotedStringLiteral();
+                        break;
+                    case '"':
+                        lexDoubleQuotedStringLiteral();
+                        break;
+                    case '\0':
+                        // hit sentinel at end of value
+                        pos += 1; // will take us to the end
+                        break;
+                    case '\\':
+                        throw {
+                            name: 'SpelParseException',
+                            message: 'Unexpected escape character in expression (' + expressionString + ') at position ' + pos
+                        };
+                    default:
+                        throw {
+                            name: 'SpelParseException',
+                            message: 'Cannot handle character \'' + ch + '\' in expression (' + expressionString + ') at position ' + pos
+                        };
                 }
             }
         }
     }
 
     function lexQuotedStringLiteral() {
-        var start = pos,
-            terminated = false,
-            ch;
+        const start = pos;
+        let terminated = false;
+        let ch: string;
 
         while (!terminated) {
             pos += 1;
@@ -269,8 +256,7 @@ function tokenize(inputData) {
                 // may not be the end if the char after is also a '
                 if (toProcess[pos + 1] === '\'') {
                     pos += 1; // skip over that too, and continue
-                }
-                else {
+                } else {
                     terminated = true;
                 }
             }
@@ -282,12 +268,13 @@ function tokenize(inputData) {
             }
         }
         pos += 1;
-        tokens.push(new Token(TokenKind.LITERAL_STRING, subarray(start, pos), start, pos));
+        tokens.push(new Token(TokenKind.LITERAL_STRING, start, pos, subarray(start, pos)));
     }
+
     function lexDoubleQuotedStringLiteral() {
-        var start = pos,
-            terminated = false,
-            ch;
+        const start = pos;
+        let terminated = false;
+        let ch: string;
 
         while (!terminated) {
             pos += 1;
@@ -296,8 +283,7 @@ function tokenize(inputData) {
                 // may not be the end if the char after is also a '
                 if (toProcess[pos + 1] === '"') {
                     pos += 1; // skip over that too, and continue
-                }
-                else {
+                } else {
                     terminated = true;
                 }
             }
@@ -309,7 +295,7 @@ function tokenize(inputData) {
             }
         }
         pos += 1;
-        tokens.push(new Token(TokenKind.LITERAL_STRING, subarray(start, pos), start, pos));
+        tokens.push(new Token(TokenKind.LITERAL_STRING, start, pos, subarray(start, pos)));
     }
 
     // REAL_LITERAL :
@@ -328,28 +314,26 @@ function tokenize(inputData) {
     // INTEGER_LITERAL
     // : (DECIMAL_DIGIT)+ (INTEGER_TYPE_SUFFIX)?;
 
-    function lexNumericLiteral(firstCharIsZero) {
-        var isReal = false,
-            start = pos,
-            ch = toProcess[pos + 1],
-            isHex = ch === 'x' || ch === 'X',
-            dotpos,
-            endOfNumber,
-            possibleSign,
-            isFloat;
+    function lexNumericLiteral(firstCharIsZero: boolean) {
+        let isReal = false;
+        const start = pos;
+        let ch = toProcess[pos + 1];
+        const isHex = ch === 'x' || ch === 'X';
+        let dotpos: number;
+        let endOfNumber: number;
+        let possibleSign: string;
+        let isFloat: boolean;
 
         // deal with hexadecimal
         if (firstCharIsZero && isHex) {
             pos = pos + 1;
             do {
                 pos += 1;
-            }
-            while (isHexadecimalDigit(toProcess[pos]));
+            } while (isHexadecimalDigit(toProcess[pos]));
             if (isChar('L', 'l')) {
                 pushHexIntToken(subarray(start + 2, pos), true, start, pos);
                 pos += 1;
-            }
-            else {
+            } else {
                 pushHexIntToken(subarray(start + 2, pos), false, start, pos);
             }
             return;
@@ -360,8 +344,7 @@ function tokenize(inputData) {
         // Consume first part of number
         do {
             pos += 1;
-        }
-        while (isDigit(toProcess[pos]));
+        } while (isDigit(toProcess[pos]));
 
         // a '.' indicates this number is a real
         ch = toProcess[pos];
@@ -371,8 +354,7 @@ function tokenize(inputData) {
             // carry on consuming digits
             do {
                 pos += 1;
-            }
-            while (isDigit(toProcess[pos]));
+            } while (isDigit(toProcess[pos]));
             if (pos === dotpos + 1) {
                 // the number is something like '3.'. It is really an int but may be
                 // part of something like '3.toString()'. In this case process it as
@@ -389,7 +371,8 @@ function tokenize(inputData) {
 
         // is it a long ?
         if (isChar('L', 'l')) {
-            if (isReal) { // 3.4L - not allowed
+            if (isReal) {
+                // 3.4L - not allowed
                 throw {
                     name: 'SpelParseException',
                     message: 'Real cannot be long in expression (' + expressionString + ') at position ' + pos
@@ -397,8 +380,7 @@ function tokenize(inputData) {
             }
             pushIntToken(subarray(start, endOfNumber), true, start, endOfNumber);
             pos += 1;
-        }
-        else if (isExponentChar(toProcess[pos])) {
+        } else if (isExponentChar(toProcess[pos])) {
             isReal = true; // if it wasn't before, it is now
             pos += 1;
             possibleSign = toProcess[pos];
@@ -409,21 +391,18 @@ function tokenize(inputData) {
             // exponent digits
             do {
                 pos += 1;
-            }
-            while (isDigit(toProcess[pos]));
+            } while (isDigit(toProcess[pos]));
             isFloat = false;
             if (isFloatSuffix(toProcess[pos])) {
                 isFloat = true;
                 pos += 1;
                 endOfNumber = pos;
-            }
-            else if (isDoubleSuffix(toProcess[pos])) {
+            } else if (isDoubleSuffix(toProcess[pos])) {
                 pos += 1;
                 endOfNumber = pos;
             }
             pushRealToken(subarray(start, pos), isFloat, start, pos);
-        }
-        else {
+        } else {
             ch = toProcess[pos];
             isFloat = false;
             if (isFloatSuffix(ch)) {
@@ -431,35 +410,32 @@ function tokenize(inputData) {
                 isFloat = true;
                 pos += 1;
                 endOfNumber = pos;
-            }
-            else if (isDoubleSuffix(ch)) {
+            } else if (isDoubleSuffix(ch)) {
                 isReal = true;
                 pos += 1;
                 endOfNumber = pos;
             }
             if (isReal) {
                 pushRealToken(subarray(start, endOfNumber), isFloat, start, endOfNumber);
-            }
-            else {
+            } else {
                 pushIntToken(subarray(start, endOfNumber), false, start, endOfNumber);
             }
         }
     }
 
     function lexIdentifier() {
-        var start = pos,
-            substring,
-            asString,
-            idx;
+        const start = pos;
+        let substring: string;
+        let asString: string;
+        let idx: number;
         do {
             pos += 1;
-        }
-        while (isIdentifier(toProcess[pos]));
+        } while (isIdentifier(toProcess[pos]));
         substring = subarray(start, pos);
 
         // Check if this is the alternative (textual) representation of an operator (see
         // alternativeOperatorNames)
-        if ((pos - start) === 2 || (pos - start) === 3) {
+        if ((pos - start === 2 || pos - start === 3) && ALTERNATIVE_OPERATOR_NAMES.includes(substring.toUpperCase())) {
             asString = substring.toUpperCase();
             idx = ALTERNATIVE_OPERATOR_NAMES.indexOf(asString);
             if (idx >= 0) {
@@ -467,27 +443,25 @@ function tokenize(inputData) {
                 return;
             }
         }
-        tokens.push(new Token(TokenKind.IDENTIFIER, substring.replace('\0', ''), start, pos));
+        tokens.push(new Token(TokenKind.IDENTIFIER, start, pos, substring.replace('\0', '')));
     }
 
-    function pushIntToken(data, isLong, start, end) {
+    function pushIntToken(data: string, isLong: boolean, start: number, end: number) {
         if (isLong) {
-            tokens.push(new Token(TokenKind.LITERAL_LONG, data, start, end));
-        }
-        else {
-            tokens.push(new Token(TokenKind.LITERAL_INT, data, start, end));
+            tokens.push(new Token(TokenKind.LITERAL_LONG, start, end, data));
+        } else {
+            tokens.push(new Token(TokenKind.LITERAL_INT, start, end, data));
         }
     }
 
-    function pushHexIntToken(data, isLong, start, end) {
+    function pushHexIntToken(data: string, isLong: boolean, start: number, end: number) {
         if (data.length === 0) {
             if (isLong) {
                 throw {
                     name: 'SpelParseException',
                     message: 'Not a long in expression (' + expressionString + ') at position ' + pos
                 };
-            }
-            else {
+            } else {
                 throw {
                     name: 'SpelParseException',
                     message: 'Not an int in expression (' + expressionString + ') at position ' + pos
@@ -495,30 +469,28 @@ function tokenize(inputData) {
             }
         }
         if (isLong) {
-            tokens.push(new Token(TokenKind.LITERAL_HEXLONG, data, start, end));
-        }
-        else {
-            tokens.push(new Token(TokenKind.LITERAL_HEXINT, data, start, end));
+            tokens.push(new Token(TokenKind.LITERAL_HEXLONG, start, end, data));
+        } else {
+            tokens.push(new Token(TokenKind.LITERAL_HEXINT, start, end, data));
         }
     }
 
-    function pushRealToken(data, isFloat, start, end) {
+    function pushRealToken(data: string, isFloat: boolean, start: number, end: number) {
         if (isFloat) {
-            tokens.push(new Token(TokenKind.LITERAL_REAL_FLOAT, data, start, end));
-        }
-        else {
-            tokens.push(new Token(TokenKind.LITERAL_REAL, data, start, end));
+            tokens.push(new Token(TokenKind.LITERAL_REAL_FLOAT, start, end, data));
+        } else {
+            tokens.push(new Token(TokenKind.LITERAL_REAL, start, end, data));
         }
     }
 
-    function subarray(start, end) {
+    function subarray(start: number, end: number): string {
         return toProcess.substring(start, end);
     }
 
     /**
      * Check if this might be a two character token.
      */
-    function isTwoCharToken(kind) {
+    function isTwoCharToken(kind: TokenKind): boolean {
         if (kind.tokenChars.length === 2 && toProcess[pos] === kind.tokenChars[0]) {
             return toProcess[pos + 1] === kind.tokenChars[1];
         }
@@ -528,64 +500,64 @@ function tokenize(inputData) {
     /**
      * Push a token of just one character in length.
      */
-    function pushCharToken(kind) {
-        tokens.push(new Token(kind, null, pos, pos + 1));
+    function pushCharToken(kind: TokenKind) {
+        tokens.push(new Token(kind, pos, pos + 1));
         pos += 1;
     }
 
     /**
      * Push a token of two characters in length.
      */
-    function pushPairToken(kind) {
-        tokens.push(new Token(kind, null, pos, pos + 2));
+    function pushPairToken(kind: TokenKind) {
+        tokens.push(new Token(kind, pos, pos + 2));
         pos += 2;
     }
 
-    function pushOneCharOrTwoCharToken(kind, pos, data) {
-        tokens.push(new Token(kind, data, pos, pos + kind.getLength()));
+    function pushOneCharOrTwoCharToken(kind: TokenKind, pos: number, data: string) {
+        tokens.push(new Token(kind, pos, pos + kind.getLength(), data));
     }
 
     // ID: ('a'..'z'|'A'..'Z'|'_'|'$') ('a'..'z'|'A'..'Z'|'_'|'$'|'0'..'9'|DOT_ESCAPED)*;
-    function isIdentifier(ch) {
+    function isIdentifier(ch: string): boolean {
         return isAlphabetic(ch) || isDigit(ch) || ch === '_' || ch === '$';
     }
 
-    function isChar(a, b) {
-        var ch = toProcess[pos];
+    function isChar(a: string, b: string): boolean {
+        const ch = toProcess[pos];
         return ch === a || ch === b;
     }
 
-    function isExponentChar(ch) {
+    function isExponentChar(ch: string): boolean {
         return ch === 'e' || ch === 'E';
     }
 
-    function isFloatSuffix(ch) {
+    function isFloatSuffix(ch: string): boolean {
         return ch === 'f' || ch === 'F';
     }
 
-    function isDoubleSuffix(ch) {
+    function isDoubleSuffix(ch: string): boolean {
         return ch === 'd' || ch === 'D';
     }
 
-    function isSign(ch) {
+    function isSign(ch: string): boolean {
         return ch === '+' || ch === '-';
     }
 
-    function isDigit(ch) {
+    function isDigit(ch: string): boolean {
         if (ch.charCodeAt(0) > 255) {
             return false;
         }
         return (FLAGS[ch.charCodeAt(0)] & IS_DIGIT) !== 0;
     }
 
-    function isAlphabetic(ch) {
+    function isAlphabetic(ch: string): boolean {
         if (ch.charCodeAt(0) > 255) {
             return false;
         }
         return (FLAGS[ch.charCodeAt(0)] & IS_ALPHA) !== 0;
     }
 
-    function isHexadecimalDigit(ch) {
+    function isHexadecimalDigit(ch: string): boolean {
         if (ch.charCodeAt(0) > 255) {
             return false;
         }
@@ -595,9 +567,8 @@ function tokenize(inputData) {
     process();
 
     return tokens;
-
 }
 
-export var Tokenizer = {
+export const Tokenizer = {
     tokenize: tokenize
 };

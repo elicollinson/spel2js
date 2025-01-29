@@ -20,63 +20,76 @@
  * @since 0.2.0
  */
 
-import {TokenKind} from './TokenKind';
+import { TokenKind } from './TokenKind';
 
-function Token(tokenKind, tokenData, startPos, endPos) {
-    this.kind = tokenKind;
-    this.startPos = startPos;
-    this.endPos = endPos;
-    if (tokenData) {
-        this.data = tokenData;
+class Token {
+    kind: TokenKind;
+    startPos: number;
+    endPos: number;
+    data?: string;
+
+    constructor(tokenKind: TokenKind, startPos: number, endPos: number, tokenData?: string) {
+        this.kind = tokenKind;
+        this.startPos = startPos;
+        this.endPos = endPos;
+        if (tokenData) {
+            this.data = tokenData;
+        }
+    }
+
+    getKind(): TokenKind {
+        return this.kind;
+    }
+
+    toString(): string {
+        let s = '[';
+        s += this.kind.toString();
+        if (this.kind.hasPayload()) {
+            s += ':' + this.data;
+        }
+        s += ']';
+        s += '(' + this.startPos + ',' + this.endPos + ')';
+        return s;
+    }
+
+    isIdentifier(): boolean {
+        return this.kind === TokenKind.IDENTIFIER;
+    }
+
+    isNumericRelationalOperator(): boolean {
+        return (
+            this.kind === TokenKind.GT ||
+            this.kind === TokenKind.GE ||
+            this.kind === TokenKind.LT ||
+            this.kind === TokenKind.LE ||
+            this.kind === TokenKind.EQ ||
+            this.kind === TokenKind.NE
+        );
+    }
+
+    stringValue(): string | undefined {
+        return this.data;
+    }
+
+    asInstanceOfToken(): Token {
+        return new Token(TokenKind.INSTANCEOF, this.startPos, this.endPos);
+    }
+
+    asMatchesToken(): Token {
+        return new Token(TokenKind.MATCHES, this.startPos, this.endPos);
+    }
+
+    asBetweenToken(): Token {
+        return new Token(TokenKind.BETWEEN, this.startPos, this.endPos);
+    }
+
+    getStartPosition(): number {
+        return this.startPos;
+    }
+
+    getEndPosition(): number {
+        return this.endPos;
     }
 }
 
-Token.prototype.getKind = function () {
-    return this.kind;
-};
-
-Token.prototype.toString = function () {
-    var s = '[';
-    s += this.kind.toString();
-    if (this.kind.hasPayload()) {
-        s += ':' + this.data;
-    }
-    s += ']';
-    s += '(' + this.startPos + ',' + this.endPos + ')';
-    return s;
-};
-
-Token.prototype.isIdentifier = function () {
-    return (this.kind === TokenKind.IDENTIFIER);
-};
-
-Token.prototype.isNumericRelationalOperator = function () {
-    return (this.kind === TokenKind.GT || this.kind === TokenKind.GE || this.kind === TokenKind.LT ||
-    this.kind === TokenKind.LE || this.kind === TokenKind.EQ || this.kind === TokenKind.NE);
-};
-
-Token.prototype.stringValue = function () {
-    return this.data;
-};
-
-Token.prototype.asInstanceOfToken = function () {
-    return new Token(TokenKind.INSTANCEOF, this.startPos, this.endPos);
-};
-
-Token.prototype.asMatchesToken = function () {
-    return new Token(TokenKind.MATCHES, this.startPos, this.endPos);
-};
-
-Token.prototype.asBetweenToken = function () {
-    return new Token(TokenKind.BETWEEN, this.startPos, this.endPos);
-};
-
-Token.prototype.getStartPosition = function () {
-    return this.startPos;
-};
-
-Token.prototype.getEndPosition = function () {
-    return this.endPos;
-};
-
-export {Token};
+export { Token };

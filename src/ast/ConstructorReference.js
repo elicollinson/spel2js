@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
-import {Stack} from '../lib/Stack';
+import { SpelNode } from './SpelNode';
+import { Stack } from '../lib/Stack';
 
 /**
  * Represents the invocation of a constructor. Either a constructor on a regular type or
@@ -30,7 +30,7 @@ import {Stack} from '../lib/Stack';
  * @author Juergen Hoeller
  * @since 3.0
  */
- function createNode(position, dimensions, nodes) {
+function createNode(position: number, dimensions: any[], nodes: any[]) {
     var isArray = nodes !== undefined;
     var dimension;
     if (isArray) {
@@ -47,7 +47,7 @@ import {Stack} from '../lib/Stack';
         return dimension;
     };
 
-    node.getValue = function (state) {
+    node.getValue = function (state: any) {
         if (isArray && args.length <= 1) {
             var compiledArgs = [];
 

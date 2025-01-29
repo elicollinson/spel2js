@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-
-import {SpelNode} from './SpelNode';
-import {Stack} from '../lib/Stack';
+import { SpelNode } from './SpelNode';
+import { Stack } from '../lib/Stack';
 
 /**
  * An Indexer can index into some proceeding structure to access a particular piece of it.
@@ -29,10 +28,10 @@ import {Stack} from '../lib/Stack';
  * @since 0.2.0
  */
 
-function createNode(position, expressionComponents) {
+function createNode(position: number, expressionComponents: any[]): any {
     var node = SpelNode.create.apply(null, ['indexer', position].concat(expressionComponents));
 
-    node.getValue = function (state) {
+    node.getValue = function (state: any): any {
         var activeContext = state.activeContext,
             context,
             childrenCount = node.getChildren().length,
@@ -66,11 +65,9 @@ function createNode(position, expressionComponents) {
         return value;
     };
 
-    //node.setContext(node.getValue());
-
     return node;
 }
 
-export var Indexer =  {
+export var Indexer = {
     create: createNode
 };
