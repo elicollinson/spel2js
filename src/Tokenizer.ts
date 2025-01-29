@@ -30,7 +30,7 @@ const IS_DIGIT = 1;
 const IS_HEXDIGIT = 2;
 const IS_ALPHA = 4;
 
-function init() {
+function init(): void {
     let ch: number;
 
     for (ch = '0'.charCodeAt(0); ch <= '9'.charCodeAt(0); ch += 1) {
@@ -59,7 +59,7 @@ function tokenize(inputData: string): Token[] {
     let pos = 0;
     const tokens: Token[] = [];
 
-    function process() {
+    function process(): void {
         let ch: string;
 
         while (pos < max) {
@@ -244,7 +244,7 @@ function tokenize(inputData: string): Token[] {
         }
     }
 
-    function lexQuotedStringLiteral() {
+    function lexQuotedStringLiteral(): void {
         const start = pos;
         let terminated = false;
         let ch: string;
@@ -271,7 +271,7 @@ function tokenize(inputData: string): Token[] {
         tokens.push(new Token(TokenKind.LITERAL_STRING, start, pos, subarray(start, pos)));
     }
 
-    function lexDoubleQuotedStringLiteral() {
+    function lexDoubleQuotedStringLiteral(): void {
         const start = pos;
         let terminated = false;
         let ch: string;

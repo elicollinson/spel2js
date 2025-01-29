@@ -117,7 +117,7 @@ var types = {
     DEC: '--'                   //tested
 };
 
-function TokenKind(type) {
+function TokenKind(type: string) {
     this.type = type;
     this.tokenChars = types[type];
     this._hasPayload = typeof types[type] !== 'string';
@@ -137,15 +137,15 @@ TokenKind.prototype.toString = function () {
     return this.type + (this.tokenChars.length !== 0 ? '(' + this.tokenChars + ')' : '');
 };
 
-TokenKind.prototype.getLength = function () {
+TokenKind.prototype.getLength = function (): number {
     return this.tokenChars.length;
 };
 
-TokenKind.prototype.hasPayload = function () {
+TokenKind.prototype.hasPayload = function (): boolean {
     return this._hasPayload;
 };
 
-TokenKind.prototype.valueOf = function (id) {
+TokenKind.prototype.valueOf = function (id: number) {
     for (var t in types) {
         if (types.hasOwnProperty(t) && types[t] === id) {
             return TokenKind[t];
@@ -153,7 +153,7 @@ TokenKind.prototype.valueOf = function (id) {
     }
 };
 
-TokenKind.prototype.ordinal = function () {
+TokenKind.prototype.ordinal = function (): number {
     return this._ordinal;
 };
 
