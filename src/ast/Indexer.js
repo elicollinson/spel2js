@@ -15,8 +15,8 @@
  */
 
 
-import {SpelNode} from './SpelNode';
-import {Stack} from '../lib/Stack';
+import {SpelNode} from './SpelNode.js';
+import {Stack} from '../lib/Stack.js';
 
 /**
  * An Indexer can index into some proceeding structure to access a particular piece of it.

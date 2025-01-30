@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
-import {Stack} from '../lib/Stack';
+import {SpelNode} from './SpelNode.js';
+import {Stack} from '../lib/Stack.js';
 
 /**
  * A function reference is of the form "#someFunction(a,b,c)". Functions may be defined in

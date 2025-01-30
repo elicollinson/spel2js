@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import {SpelNode} from './SpelNode.js';
 
 /**
  * Represents a DOT separated expression sequence, such as 'property1.property2.methodOne()'

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import {SpelNode} from './SpelNode.js';
 
 /**
  * Represents the between operator. The left operand to between must be a single value and

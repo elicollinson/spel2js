@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import {SpelNode} from './SpelNode.js';
 
 /**
  * Represents assignment. An alternative to calling setValue() for an expression is to use

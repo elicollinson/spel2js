@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import {SpelNode} from './SpelNode.js';
 
 /**
  * Represents the elvis operator ?:. For an expression "a?:b" if a is not null, the value

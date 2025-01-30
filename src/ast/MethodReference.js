@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
-import {Stack} from '../lib/Stack'
+import {SpelNode} from './SpelNode.js';
+import {Stack} from '../lib/Stack.js'
 
 /**
  * Expression language AST node that represents a method reference.

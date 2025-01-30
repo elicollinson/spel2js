@@ -19,7 +19,7 @@
  * @since 0.2.0
  */
 
-import {SpelExpressionEvaluator} from './SpelExpressionEvaluator';
-import {StandardContext} from './StandardContext';
+import { SpelExpressionEvaluator } from './SpelExpressionEvaluator.js';
+import { StandardContext } from './StandardContext.js';
 
 export {SpelExpressionEvaluator, StandardContext};

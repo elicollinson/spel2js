@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import {SpelNode} from './SpelNode.js';
 
 /**
  * Represent a list in an expression, e.g. '{1,2,3}'

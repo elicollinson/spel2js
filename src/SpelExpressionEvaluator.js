@@ -19,8 +19,8 @@
  * @since 0.2.0
  */
 
-import {SpelExpressionParser as spelExpressionParser} from './SpelExpressionParser';
-import {Stack} from './lib/Stack';
+import {SpelExpressionParser as spelExpressionParser} from './SpelExpressionParser.js';
+import {Stack} from './lib/Stack.js';
 
 var spelExpressionEvaluator = {};
 

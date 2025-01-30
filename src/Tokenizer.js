@@ -21,8 +21,8 @@
  * @since 0.2.0
  */
 
-import {Token} from './Token';
-import {TokenKind} from './TokenKind';
+import {Token} from './Token.js';
+import {TokenKind} from './TokenKind.js';
 
 var ALTERNATIVE_OPERATOR_NAMES = ['DIV', 'EQ', 'GE', 'GT', 'LE', 'LT', 'MOD', 'NE', 'NOT'],
     FLAGS = [],

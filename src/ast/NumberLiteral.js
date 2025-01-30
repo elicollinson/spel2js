@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
+import {SpelNode} from './SpelNode.js';
 
 /**
  * Expression language AST node that represents a literal number of any kind (since JavaScript only supports doubles anyway)

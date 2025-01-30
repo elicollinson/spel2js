@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {SpelNode} from './SpelNode';
-import {Stack} from '../lib/Stack';
+import {SpelNode} from './SpelNode.js';
+import {Stack} from '../lib/Stack.js';
 
 /**
  * Represents the invocation of a constructor. Either a constructor on a regular type or

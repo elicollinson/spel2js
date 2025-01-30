@@ -20,7 +20,7 @@
  * @since 0.2.0
  */
 
-import {TokenKind} from './TokenKind';
+import {TokenKind} from './TokenKind.js';
 
 function Token(tokenKind, tokenData, startPos, endPos) {
     this.kind = tokenKind;
